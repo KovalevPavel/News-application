@@ -1,0 +1,53 @@
+<resources>
+    <string name="app_name">News app</string>
+    <string name="main_screen_name">Новости</string>
+    <string name="greetings_morning">Доброе утро</string>
+    <string name="greetings_day">Добрый день</string>
+    <string name="greetings_evening">Добрый вечер</string>
+
+    <!--    Заголовки элементов списка-->
+    <string name="item_news">Новость</string>
+    <string name="item_alert">Уведомление</string>
+
+    <!--    Окно ошибки при загрузке-->
+    <string name="no_network_error">При загрузке данных произошла ошибка</string>
+    <string name="btn_retry">Обновить</string>
+
+    <!--    Имя пользователя по умолчанию-->
+    <string name="user_default_name">Неизвестный гость</string>
+
+    <!--    Названия месяцев-->
+    <string name="jan">января</string>
+    <string name="feb">февраля</string>
+    <string name="mar">марта</string>
+    <string name="apr">апреля</string>
+    <string name="may">мая</string>
+    <string name="jun">июня</string>
+    <string name="jul">июля</string>
+    <string name="aug">августа</string>
+    <string name="sep">сентября</string>
+    <string name="okt">октября</string>
+    <string name="nov">ноября</string>
+    <string name="des">декабря</string>
+    <string name="btn_share">Поделиться новостью</string>
+
+    <!--Заголовок главного экрана-->
+    <style name="MainScreenHeaderStyle">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <!--Заголовок новости    -->
+    <style name="NewsHeaderStyle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!--Текст новости    -->
+    <style name="NewsTextStyle">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+
+</resources>
