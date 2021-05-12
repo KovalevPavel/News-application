@@ -1,14 +1,14 @@
 package com.github.newsapp.ui.fragments.newsDetailsFragment
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintSet
-import androidx.lifecycle.lifecycleScope
+import androidx.viewpager2.widget.ViewPager2
 import com.github.newsapp.NewsApplication
 import com.github.newsapp.R
-import com.github.newsapp.data.remote.NetworkService
 import com.github.newsapp.databinding.FragmentNewsDetailsBinding
 import com.github.newsapp.domain.entities.NewsItemExtended
+import com.github.newsapp.domain.usecases.loadingnews.NewsTypes
 import com.github.newsapp.presenters.NewsDetailsPresenter
 import com.github.newsapp.ui.fragments.newsDetailsFragment.adapters.ViewPagerAdapter
 import com.github.newsapp.ui.fragments.newsDetailsFragment.fragmentStates.DetailsNewsState
@@ -17,15 +17,10 @@ import com.github.newsapp.ui.fragments.newsDetailsFragment.fragmentStates.StateN
 import com.github.newsapp.ui.fragments.newsDetailsFragment.fragmentStates.StateOneImage
 import com.github.newsapp.ui.view.NewsDetailsView
 import com.github.newsapp.util.FragmentViewBinding
-import com.github.newsapp.util.autoscroll
 import com.github.newsapp.util.loggingDebug
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
-import javax.inject.Inject
+import java.util.*
 
 class NewsDetailsFragment :
     FragmentViewBinding<FragmentNewsDetailsBinding>(FragmentNewsDetailsBinding::inflate),
@@ -42,65 +37,83 @@ class NewsDetailsFragment :
         }
     }
 
-    private lateinit var fragmentState: DetailsNewsState
-    private lateinit var viewPagerAdapter: ViewPagerAdapter
-
-    @Inject
-    lateinit var networkRepository: NetworkService
-
     @InjectPresenter
     lateinit var detailsPresenter: NewsDetailsPresenter
 
     @ProvidePresenter
     fun provideDetailsPresenter(): NewsDetailsPresenter {
-        return NewsDetailsPresenter(networkRepository, NewsApplication.instance.router)
+        return NewsDetailsPresenter(requireActivity(), NewsApplication.instance.router)
     }
 
-    private val runnable: Runnable? = Runnable {
-        var nextPage = binder.viewPager.currentItem + 1
-        if (nextPage == binder.viewPager.adapter?.itemCount)
-            nextPage = 0
-        binder.viewPager.currentItem = nextPage
+//    переменная "состояние фрагмента"
+    private lateinit var fragmentState: DetailsNewsState
+//    адаптер
+    private lateinit var viewPagerAdapter: ViewPagerAdapter
+//    слушатель события скролла
+    private val onViewPagerItemChange = object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+            super.onPageSelected(position)
+            detailsPresenter.onScrollViewPager(position)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         NewsApplication.newsApplicationComponent.inject(this)
-        viewPagerAdapter = ViewPagerAdapter {
-            CoroutineScope(Dispatchers.Main).launch {
-                while (true) {
-                    loggingDebug("hold")
-                    delay(1000)
-                }
-            }
-        }
         super.onCreate(savedInstanceState)
+        viewPagerAdapter = ViewPagerAdapter {
+            detailsPresenter.openFullScreenView()
+        }
+        detailsPresenter.updateNewsID(requireArguments().getLong(NEWS_ID))
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         binder.viewPager.adapter = viewPagerAdapter
         binder.toolbar.setNavigationOnClickListener {
             detailsPresenter.navigateBack()
         }
-        binder.viewPager.autoscroll(lifecycleScope, 1500)
+        binder.viewPager.registerOnPageChangeCallback(onViewPagerItemChange)
     }
 
-    override fun bindDetails() {
-        val details = detailsPresenter.currentNewsDetails
+    override fun onStart() {
+        super.onStart()
+        detailsPresenter.updatePreviewImage()
+    }
+
+//    заносим данные в интерфейс
+    override fun bindDetails(newsDetails: NewsItemExtended) {
         binder.apply {
-            textNewsHeader.text = details.title
-            textNewsDescription.text = details.description
-            textPublishedAt.text = details.publishedAt.toString()
-            dotsIndicator.setViewPager2(binder.viewPager)
-            setState(details)
+            textNewsHeader.text = newsDetails.title
+            textNewsDescription.text = newsDetails.description
+            textPublishedAt.text = newsDetails.publishedAt.toString()
+            setState(newsDetails)
+            setupShareButton(newsDetails)
             fragmentState.prepareFragment()
-            details.images?.let {
+            newsDetails.images?.let {
                 viewPagerAdapter.updateImageList(it)
                 viewPagerAdapter.notifyDataSetChanged()
+            }
+            dotsIndicator.setViewPager2(binder.viewPager)
+        }
+    }
+
+//    настройка кнопки "поделиться"
+    private fun setupShareButton(details: NewsItemExtended) {
+        val gotShareText = details.shareText !== null
+        val shareTextRes = when (details.type) {
+            NewsTypes.NEWS -> R.string.btnShare_news
+            NewsTypes.ALERT -> R.string.btnShare_alert
+        }
+        binder.btnShare.apply {
+            visibility = if (gotShareText) View.VISIBLE else View.GONE
+            setText(shareTextRes)
+            setOnClickListener {
+                detailsPresenter.shareNews()
             }
         }
     }
 
+//    установка состояния фрагмента
     private fun setState(details: NewsItemExtended) {
         fragmentState = when (details.images?.size) {
             null -> StateNoImages(binder, requireActivity() as AppCompatActivity)
@@ -109,44 +122,18 @@ class NewsDetailsFragment :
         }
     }
 
+//    передача id новости в презентер для последующей загрузки
     override fun updateNewsID() {
         detailsPresenter.updateNewsID(requireArguments().getLong(NEWS_ID))
     }
 
-    private fun viewPagerFullScreen() {
-        binder.viewPager.apply {
-            val constraintSet = ConstraintSet()
-            constraintSet.clone(binder.viewPagerLayout)
-            constraintSet.apply {
-                clear(R.id.viewPager)
-                connect(
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.START,
-                    R.id.viewPager,
-                    ConstraintSet.START
-                )
-                connect(
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.END,
-                    R.id.viewPager,
-                    ConstraintSet.END
-                )
-                connect(
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.TOP,
-                    R.id.viewPager,
-                    ConstraintSet.TOP
-                )
-                connect(
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM,
-                    R.id.viewPager,
-                    ConstraintSet.BOTTOM
-                )
-                constrainWidth(R.id.viewPager, ConstraintSet.MATCH_CONSTRAINT)
-                constrainHeight(R.id.viewPager, ConstraintSet.MATCH_CONSTRAINT)
-            }
-        }
+//    установка нового изображения во viewpager
+    override fun setImageToViewPager(imageID: Int) {
+        binder.viewPager.setCurrentItem(imageID, false)
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binder.viewPager.unregisterOnPageChangeCallback(onViewPagerItemChange)
     }
 }

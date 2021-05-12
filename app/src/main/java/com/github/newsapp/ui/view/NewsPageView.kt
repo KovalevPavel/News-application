@@ -8,10 +8,9 @@ import moxy.viewstate.strategy.StateStrategyType
 
 @StateStrategyType(OneExecutionStateStrategy::class)
 interface NewsPageView : MvpView {
-    fun loadNewsList()
-
     @StateStrategyType(AddToEndSingleStrategy::class)
     fun updateNewsList(newsList: List<DisplayInRecycleItem>)
+    fun loadNewsList()
     fun showUpButton()
     fun hideUpButton()
     fun showLoading()

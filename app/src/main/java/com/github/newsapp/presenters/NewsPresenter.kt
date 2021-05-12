@@ -7,6 +7,7 @@ import com.github.newsapp.domain.usecases.filesystem.FileSystemUseCase
 import com.github.newsapp.domain.usecases.loadingnews.LoadingUseCase
 import com.github.newsapp.ui.CiceroneScreens
 import com.github.newsapp.ui.view.NewsPageView
+import com.github.newsapp.util.loggingDebug
 import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,18 +35,21 @@ class NewsPresenter(
     private var currentPageNumber = 0
 
     fun loadNews() {
-        loadingUseCase.loadNews({
-            loadingUseCase.loadPortion(1, {
-                currentPageNumber = 1
-                newsList = it
-                newsList = listOf(HeaderItem()) + newsList
-                viewState.updateNewsList(newsList)
+        loggingDebug("${newsList.isEmpty()}")
+        if (newsList.isEmpty())
+            loadingUseCase.loadNews({
+                loadingUseCase.loadPortion(1, {
+                    currentPageNumber = 1
+                    newsList = it
+                    newsList = listOf(HeaderItem()) + newsList
+                    viewState.updateNewsList(newsList)
+                }, {
+                    router.navigateTo(CiceroneScreens.retryScreen())
+                })
             }, {
                 router.navigateTo(CiceroneScreens.retryScreen())
             })
-        }, {
-            router.navigateTo(CiceroneScreens.retryScreen())
-        })
+        else viewState.updateNewsList(newsList)
     }
 
     fun saveRating(rating: Float) {
@@ -75,11 +79,6 @@ class NewsPresenter(
         }, {
             router.navigateTo(CiceroneScreens.retryScreen())
         })
-    }
-
-    override fun onFirstViewAttach() {
-        super.onFirstViewAttach()
-        viewState.loadNewsList()
     }
 
     fun navigateToDetails(newsId: Long) {

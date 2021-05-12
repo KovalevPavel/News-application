@@ -6,7 +6,6 @@ import com.github.newsapp.NewsApplication
 import com.github.newsapp.R
 import com.github.newsapp.presenters.ActivityPresenter
 import com.github.newsapp.ui.view.ActivityView
-import com.github.newsapp.util.loggingDebug
 import com.github.terrakok.cicerone.androidx.AppNavigator
 import moxy.MvpAppCompatActivity
 import moxy.presenter.InjectPresenter
@@ -23,7 +22,6 @@ class MainActivity : MvpAppCompatActivity(), ActivityView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
-        activityPresenter.loadLaunchInfo()
         if (savedInstanceState == null)
             activityPresenter.replaceFragment()
     }
@@ -39,7 +37,6 @@ class MainActivity : MvpAppCompatActivity(), ActivityView {
     }
 
     override fun navigateToFragment(fragmentToNavigate: Fragment) {
-        loggingDebug("adding")
         supportFragmentManager.beginTransaction()
             .add(R.id.fragment_view, fragmentToNavigate)
             .commit()

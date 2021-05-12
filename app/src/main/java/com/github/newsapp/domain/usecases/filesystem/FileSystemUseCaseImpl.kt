@@ -10,6 +10,7 @@ class FileSystemUseCaseImpl(val context: Context) : FileSystemUseCase {
         private const val LAUNCH_NUMBER = "launch_number"
         private const val USER_NAME = "user_name"
         private const val RATING = "rating"
+        private const val ONBOARDING = "onboarding"
     }
 
     private fun getSharedPref(): SharedPreferences {
@@ -46,6 +47,18 @@ class FileSystemUseCaseImpl(val context: Context) : FileSystemUseCase {
         sPrefs.edit()
             .putFloat(RATING, rating)
             .apply()
+    }
+
+    override fun setOnboardingNeeded(needed: Boolean) {
+        val sPrefs = getSharedPref()
+        sPrefs.edit()
+            .putBoolean(ONBOARDING, needed)
+            .apply()
+    }
+
+    override fun getOnboardingNeeded(): Boolean {
+        val sPrefs = getSharedPref()
+        return sPrefs.getBoolean(ONBOARDING, true)
     }
 
     override fun getUserName(): String {

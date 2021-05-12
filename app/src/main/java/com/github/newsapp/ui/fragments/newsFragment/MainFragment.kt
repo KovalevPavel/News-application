@@ -25,32 +25,12 @@ import javax.inject.Inject
 class MainFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPageBinding::inflate),
     NewsPageView, FragmentWithRetry, ExitWithAnimation {
 
-    override var firstLaunch: Boolean = false
-    private var launchNumber: Int? = null
-
-    companion object {
-        private const val LAUNCH_NUMBER = "launch_number"
-        fun newInstance(launchNumber: Int): MainFragment {
-            val args = Bundle()
-            args.putInt(LAUNCH_NUMBER, launchNumber)
-            return MainFragment().also {
-                it.arguments = args
-            }
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        if (firstLaunch) {
-            view.startCircularReveal()
-            firstLaunch = false
-        }
-    }
-
-    override fun retryLoading() = loadNewsList()
-
     private var dialog: RateAlertDialog? = null
     private var newsAdapter: NewsRecyclerAdapter? = null
+
+    override var firstLaunch: Boolean = false
+    private val launchNumber: Int
+        get() = NewsApplication.currentLaunchNumber
 
     @InjectPresenter
     lateinit var newsPresenter: NewsPresenter
@@ -67,24 +47,12 @@ class MainFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPa
             NewsApplication.instance.router
         )
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        //Инъекция зависимостей
-        NewsApplication.newsApplicationComponent.inject(this)
-        super.onCreate(savedInstanceState)
-        launchNumber = requireArguments().getInt(LAUNCH_NUMBER)
-        launchNumber?.let {
-            firstLaunch = it == 1
-            if (it > 2 && (it % 3 == 0))
-                newsPresenter.showRatingDialog(firstLaunch)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (firstLaunch) {
+            view.startCircularReveal()
+            firstLaunch = false
         }
-
-        launchNumber?.let {
-
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
         newsAdapter = NewsRecyclerAdapter(
             this,
             applicationContext
@@ -93,6 +61,7 @@ class MainFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPa
                 newsPresenter.navigateToDetails(it)
             }
         }
+
         binder.recyclerNews.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = newsAdapter
@@ -107,10 +76,21 @@ class MainFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPa
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        NewsApplication.newsApplicationComponent.inject(this)
+        super.onCreate(savedInstanceState)
+        if (launchNumber >= 3 && launchNumber % 3 == 0) {
+//            TODO("Добавить вызов рейтинг-диалога")
+        }
+        newsPresenter.loadNews()
+    }
+
     override fun loadNewsList() {
         newsPresenter.loadNews()
         binder.swipeLayout.isRefreshing = false
     }
+
+    override fun retryLoading() = loadNewsList()
 
     override fun updateNewsList(newsList: List<DisplayInRecycleItem>) {
         newsAdapter?.items = newsList

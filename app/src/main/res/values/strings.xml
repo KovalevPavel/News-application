@@ -9,12 +9,16 @@
     <string name="item_news">Новость</string>
     <string name="item_alert">Уведомление</string>
 
+    <!--    Надпись кнопки "Поделиться"-->
+    <string name="btnShare_news">Поделиться новостью</string>
+    <string name="btnShare_alert">Поделиться уведомлением</string>
+
     <!--    Окно ошибки при загрузке-->
     <string name="no_network_error">При загрузке данных произошла ошибка</string>
     <string name="btn_retry">Обновить</string>
 
     <!--    Имя пользователя по умолчанию-->
-    <string name="user_default_name">Неизвестный гость</string>
+    <string name="user_default_name">Павел</string>
 
     <!--    Названия месяцев-->
     <string name="jan">января</string>

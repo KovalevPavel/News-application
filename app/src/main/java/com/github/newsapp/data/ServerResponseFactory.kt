@@ -96,11 +96,12 @@ class ServerResponseFactory {
         return tempList
     }
 
-    private fun generateShareText(newsID: Long, newsType: NewsTypes): String {
+    private fun generateShareText(newsID: Long, newsType: NewsTypes): String? {
         val shareType = when (newsType) {
             NewsTypes.NEWS -> "новость"
             NewsTypes.ALERT -> "уведомление"
         }
-        return "Оцени $shareType! ${generateNewsTitle(newsID)}"
+        val isNull = Random.nextBoolean()
+        return if (isNull) null else "Оцени $shareType! ${generateNewsTitle(newsID)}"
     }
 }

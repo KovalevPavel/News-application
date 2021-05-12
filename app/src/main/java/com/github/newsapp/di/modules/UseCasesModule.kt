@@ -1,4 +1,4 @@
-package com.github.newsapp.di
+package com.github.newsapp.di.modules
 
 import android.content.Context
 import com.github.newsapp.data.remote.NetworkService

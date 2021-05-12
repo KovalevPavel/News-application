@@ -7,4 +7,6 @@ interface FileSystemUseCase {
     fun setUserName (userName: String)
     fun getRating(): Float
     fun setRating (rating: Float)
+    fun setOnboardingNeeded (needed: Boolean)
+    fun getOnboardingNeeded(): Boolean
 }

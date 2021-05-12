@@ -1,7 +1,6 @@
 package com.github.newsapp.ui.fragments.newsDetailsFragment.adapters
 
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.github.newsapp.R
@@ -12,7 +11,7 @@ import com.squareup.picasso.Picasso
 class ViewPagerAdapter(private val onClick: () -> Unit) :
     RecyclerView.Adapter<ViewPagerAdapter.ImageDetailsViewHolder>() {
 
-    private var imageList = mutableListOf<ImageToLoad>()
+    private var imageList = emptyList<ImageToLoad>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageDetailsViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -26,14 +25,15 @@ class ViewPagerAdapter(private val onClick: () -> Unit) :
 
     override fun getItemCount() = imageList.size
 
+    fun updateImageList(newList: List<ImageToLoad>) {
+        imageList = newList
+    }
+
     class ImageDetailsViewHolder(private val binder: ItemDetailsImageBinding, onClick: () -> Unit) :
         RecyclerView.ViewHolder(binder.root) {
         init {
-            itemView.setOnTouchListener { v, event ->
-                v.performClick()
-                if (event.action == MotionEvent.ACTION_DOWN)
-                    onClick()
-                event.action == MotionEvent.ACTION_UP
+            itemView.setOnClickListener {
+                onClick()
             }
         }
 
@@ -43,9 +43,5 @@ class ViewPagerAdapter(private val onClick: () -> Unit) :
                 .placeholder(R.drawable.ic_image_not_supported)
                 .into(binder.imageDetails)
         }
-    }
-
-    fun updateImageList(newList: List<ImageToLoad>) {
-        imageList = newList.toMutableList()
     }
 }
