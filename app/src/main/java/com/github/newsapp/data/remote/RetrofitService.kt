@@ -1,5 +1,6 @@
 package com.github.newsapp.data.remote
 
+import com.github.newsapp.NewsApplication
 import com.github.newsapp.data.remote.retrofit.RetrofitApi
 import com.github.newsapp.domain.entities.NewsItem
 import com.github.newsapp.domain.entities.NewsItemExtended
@@ -12,18 +13,27 @@ class RetrofitService(
     private val retrofit: RetrofitApi
 ) : NetworkService {
     //список загруженных новостей
-    private var newsList = mutableListOf<NewsItem>()
+    private var newsList = emptyList<NewsItem>()
     private var end = 0
+
+    private val timestampUseCase = NewsApplication.newsApplicationComponent.getTimeStampUseCase()
 
     override fun getNews(
         onSuccess: () -> Unit,
         onFail: (t: Throwable) -> Unit
     ) {
         retrofit.getNewsList()
+            .map {
+                it.newsList.forEach { newsItem ->
+                    newsItem.publishedAtString =
+                        timestampUseCase.getPublishedAtString(newsItem.publishedAt)
+                }
+                it.newsList
+            }
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .subscribe({
-                newsList = it.newsList.toMutableList()
+                newsList = it
                 loggingDebug("size: ${newsList.size}")
                 onSuccess()
             }, {
@@ -37,12 +47,16 @@ class RetrofitService(
         onFail: (t: Throwable) -> Unit
     ) {
         retrofit.getNewsDetails(newsID)
+            .map {
+                it.publishedAtString = timestampUseCase.getPublishedAtString(it.publishedAt)
+                it
+            }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                successAction (it)
+                successAction(it)
             }, {
-                onFail (it)
+                onFail(it)
             })
     }
 
@@ -69,6 +83,6 @@ class RetrofitService(
     }
 
     override fun notifyEverythingIsLoaded(): Boolean {
-        return end == newsList.size -1
+        return end == newsList.size - 1
     }
 }

@@ -2,7 +2,7 @@ package com.github.newsapp.presenters
 
 import androidx.fragment.app.FragmentActivity
 import com.github.newsapp.R
-import com.github.newsapp.ui.fragments.newsFragment.MainFragment
+import com.github.newsapp.ui.fragments.newsFragment.NewsFragment
 import com.github.newsapp.ui.view.OnboardingView
 import moxy.InjectViewState
 import moxy.MvpPresenter
@@ -19,7 +19,7 @@ class OnboardingPresenter(private val parentActivity: FragmentActivity) :
     fun startUsing() {
         parentActivity.supportFragmentManager.apply {
             beginTransaction()
-                .add(R.id.fragment_view, MainFragment())
+                .add(R.id.fragment_view, NewsFragment())
                 .commit()
             popBackStack()
         }

@@ -22,7 +22,7 @@ import javax.inject.Inject
 class NewsDetailsPresenter(
     private val activityContext: Activity,
     private val router: Router
-) : MvpPresenter<NewsDetailsView>() {
+) : MvpPresenter<NewsDetailsView>(), PresenterWithRetry {
 
     init {
         NewsApplication.newsApplicationComponent.inject(this)
@@ -66,7 +66,7 @@ class NewsDetailsPresenter(
                     viewState.bindDetails(it)
                     viewState.setImageToViewPager(currentImageIndex)
                 }, {
-                    loggingDebug("error generating: $it")
+                    router.navigateTo(CiceroneScreens.retryScreen(this))
                 })
         }
     }
@@ -138,5 +138,9 @@ class NewsDetailsPresenter(
         }
         val shareIntent = Intent.createChooser(intent, null)
         activityContext.startActivity(shareIntent)
+    }
+
+    override fun retryLoading() {
+        loadDetails()
     }
 }

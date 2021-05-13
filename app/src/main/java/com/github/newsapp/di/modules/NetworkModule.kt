@@ -7,6 +7,7 @@ import com.github.newsapp.data.remote.retrofit.RetrofitApi
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -26,13 +27,14 @@ class NetworkModule {
     fun getOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor {
-                val request = it.request()
-                request.newBuilder()
+                val oldRequest = it.request()
+                val newRequest = oldRequest.newBuilder()
                     .addHeader(HEADER_DEVICE, android.os.Build.MODEL)
                     .addHeader(HEADER_TIMEZONE, TimeZone.getDefault().id)
                     .build()
-                it.proceed(request)
+                it.proceed(newRequest)
             }
+            .addNetworkInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
             .build()
     }
 

@@ -10,6 +10,7 @@ data class NewsItemExtended(
     val description: String,
     val type: NewsTypes,
     val publishedAt: Long,
+    var publishedAtString: String = "",
     val images: List<ImageToLoad>? = null,
     val shareText: String? = null
 )

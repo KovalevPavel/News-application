@@ -62,7 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.google.android.material.textview.MaterialTextView
+            <TextView
                 android:id="@+id/textNewsHeader"
                 style="@style/NewsHeaderStyle"
                 android:layout_width="wrap_content"
@@ -71,14 +71,14 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="@tools:sample/lorem" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:id="@+id/textPublishedAt"
                 app:layout_constraintTop_toTopOf="@id/textNewsHeader"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:layout_marginTop="12dp"
                 android:id="@+id/textNewsDescription"
                 android:layout_width="match_parent"

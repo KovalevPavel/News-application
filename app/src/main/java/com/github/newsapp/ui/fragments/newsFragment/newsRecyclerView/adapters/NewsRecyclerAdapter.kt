@@ -1,17 +1,19 @@
 package com.github.newsapp.ui.fragments.newsFragment.newsRecyclerView.adapters
 
+import android.app.Activity
 import android.content.Context
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.github.newsapp.domain.entities.DisplayInRecycleItem
 import com.github.newsapp.domain.entities.HeaderItem
 import com.github.newsapp.domain.entities.NewsItem
-import com.github.newsapp.ui.view.NewsPageView
+import com.github.newsapp.presenters.WithUpButton
 import com.hannesdorfmann.adapterdelegates4.AsyncListDifferDelegationAdapter
 
 class NewsRecyclerAdapter(
-    private val newsFragment: NewsPageView,
+    private val fragmentWithUpButtonPresenter: WithUpButton,
     context: Context,
+    parentActivity: Activity,
     onClickListener: (Int) -> Unit
 ) : AsyncListDifferDelegationAdapter<DisplayInRecycleItem>(DiffUtilItemCallback()) {
 
@@ -20,7 +22,7 @@ class NewsRecyclerAdapter(
     init {
         delegatesManager
             .addDelegate(NewsItemsAdapterDelegate(context, onClickListener))
-            .addDelegate(HeaderItemAdapterDelegate(onClickListener))
+            .addDelegate(HeaderItemAdapterDelegate(parentActivity))
     }
 
     override fun onBindViewHolder(
@@ -40,12 +42,12 @@ class NewsRecyclerAdapter(
 
     private fun showUpButton() {
         upButtonIsShown = true
-        newsFragment.showUpButton()
+        fragmentWithUpButtonPresenter.toggleUpButton(true)
     }
 
     private fun hideUpButton() {
         upButtonIsShown = false
-        newsFragment.hideUpButton()
+        fragmentWithUpButtonPresenter.toggleUpButton(false)
     }
 
     class DiffUtilItemCallback : DiffUtil.ItemCallback<DisplayInRecycleItem>() {

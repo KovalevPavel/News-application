@@ -8,7 +8,7 @@ import com.github.newsapp.domain.usecases.viewpagerInteraction.ViewPagerInteract
 import com.github.newsapp.presenters.NewsDetailsPresenter
 import com.github.newsapp.presenters.NewsPresenter
 import com.github.newsapp.ui.fragments.newsDetailsFragment.NewsDetailsFragment
-import com.github.newsapp.ui.fragments.newsFragment.MainFragment
+import com.github.newsapp.ui.fragments.newsFragment.NewsFragment
 import dagger.Component
 import javax.inject.Singleton
 
@@ -33,6 +33,6 @@ interface NewsApplicationComponent {
     fun inject(presenter: NewsDetailsPresenter)
 
     //fragments
-    fun inject(fragment: MainFragment)
+    fun inject(fragment: NewsFragment)
     fun inject(fragment: NewsDetailsFragment)
 }

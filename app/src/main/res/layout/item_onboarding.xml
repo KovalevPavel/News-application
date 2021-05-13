@@ -4,11 +4,12 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:text="Screen"
+        android:textColor="?attr/colorOnPrimary"
         android:layout_marginTop="80dp"
         android:textSize="30sp"
         style="@style/NewsHeaderStyle"
@@ -16,9 +17,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         app:layout_constraintTop_toBottomOf="@id/onboardingTextHeader"
         android:text="Description text"
+        android:textColor="?attr/colorOnPrimary"
         android:layout_margin="20dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

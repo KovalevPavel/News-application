@@ -20,7 +20,6 @@ import com.github.newsapp.util.FragmentViewBinding
 import com.github.newsapp.util.loggingDebug
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
-import java.util.*
 
 class NewsDetailsFragment :
     FragmentViewBinding<FragmentNewsDetailsBinding>(FragmentNewsDetailsBinding::inflate),
@@ -45,11 +44,13 @@ class NewsDetailsFragment :
         return NewsDetailsPresenter(requireActivity(), NewsApplication.instance.router)
     }
 
-//    переменная "состояние фрагмента"
+    //    переменная "состояние фрагмента"
     private lateinit var fragmentState: DetailsNewsState
-//    адаптер
+
+    //    адаптер
     private lateinit var viewPagerAdapter: ViewPagerAdapter
-//    слушатель события скролла
+
+    //    слушатель события скролла
     private val onViewPagerItemChange = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
@@ -80,12 +81,13 @@ class NewsDetailsFragment :
         detailsPresenter.updatePreviewImage()
     }
 
-//    заносим данные в интерфейс
+    //    заносим данные в интерфейс
     override fun bindDetails(newsDetails: NewsItemExtended) {
+        loggingDebug("$newsDetails")
         binder.apply {
             textNewsHeader.text = newsDetails.title
             textNewsDescription.text = newsDetails.description
-            textPublishedAt.text = newsDetails.publishedAt.toString()
+            textPublishedAt.text = newsDetails.publishedAtString
             setState(newsDetails)
             setupShareButton(newsDetails)
             fragmentState.prepareFragment()
@@ -97,7 +99,7 @@ class NewsDetailsFragment :
         }
     }
 
-//    настройка кнопки "поделиться"
+    //    настройка кнопки "поделиться"
     private fun setupShareButton(details: NewsItemExtended) {
         val gotShareText = details.shareText !== null
         val shareTextRes = when (details.type) {
@@ -113,7 +115,7 @@ class NewsDetailsFragment :
         }
     }
 
-//    установка состояния фрагмента
+    //    установка состояния фрагмента
     private fun setState(details: NewsItemExtended) {
         fragmentState = when (details.images?.size) {
             null -> StateNoImages(binder, requireActivity() as AppCompatActivity)
@@ -122,12 +124,12 @@ class NewsDetailsFragment :
         }
     }
 
-//    передача id новости в презентер для последующей загрузки
+    //    передача id новости в презентер для последующей загрузки
     override fun updateNewsID() {
         detailsPresenter.updateNewsID(requireArguments().getLong(NEWS_ID))
     }
 
-//    установка нового изображения во viewpager
+    //    установка нового изображения во viewpager
     override fun setImageToViewPager(imageID: Int) {
         binder.viewPager.setCurrentItem(imageID, false)
     }

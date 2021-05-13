@@ -1,14 +1,15 @@
 package com.github.newsapp.presenters
 
+import com.github.newsapp.NewsApplication
 import com.github.newsapp.ui.view.RetryScreenView
-import com.github.terrakok.cicerone.Router
 import moxy.InjectViewState
 import moxy.MvpPresenter
 
 @InjectViewState
-class RetryPresenter (private val router: Router) : MvpPresenter<RetryScreenView>() {
+class RetryPresenter : MvpPresenter<RetryScreenView>() {
+    private val router = NewsApplication.instance.router
     fun retryLoading() {
-//        viewState.navigateBack()
+        viewState.navigateBack()
         router.exit()
     }
 }

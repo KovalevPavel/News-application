@@ -1,7 +1,7 @@
 package com.github.newsapp.data.remote.retrofit
 
-import com.github.newsapp.domain.entities.NewsItemExtended
 import com.github.newsapp.data.ServerResponseFactory
+import com.github.newsapp.domain.entities.NewsItemExtended
 import com.github.newsapp.domain.entities.ServerResponseItem
 import io.reactivex.rxjava3.core.Single
 import kotlin.random.Random
@@ -18,7 +18,7 @@ class FakeRetrofitApi : RetrofitApi {
             val serverResponse =
                 ServerResponseFactory().generateServerResponse()
             val randomResult = Random.nextBoolean()
-//            it.onSuccess(if (randomResult) serverResponse else null)
+            it.onSuccess(if (randomResult) serverResponse else null)
             it.onSuccess(serverResponse)
         }
     }
@@ -28,7 +28,7 @@ class FakeRetrofitApi : RetrofitApi {
             val newsItemExtended =
                 ServerResponseFactory().generateNewsItemExtended(newsID)
             val randomResult = Random.nextBoolean()
-//            it.onSuccess(if (randomResult) newsItemExtended else null)
+            it.onSuccess(if (randomResult) newsItemExtended else null)
             it.onSuccess(newsItemExtended)
         }
     }

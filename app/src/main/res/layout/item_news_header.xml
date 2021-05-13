@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:padding="12dp">
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/textAppHeader"
         style="@style/MainScreenHeaderStyle"
         android:layout_width="wrap_content"
@@ -15,7 +15,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/textGreetings"
         tools:text="@tools:sample/full_names"
         android:layout_width="wrap_content"
@@ -27,6 +27,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="wrap_content"
+        android:id="@+id/btnPlayMarket"
         android:background="?attr/selectableItemBackground"
         android:src="@drawable/ic_help"
         android:tint="?attr/colorPrimary"

@@ -1,5 +1,6 @@
 package com.github.newsapp.presenters
 
+import android.view.View
 import com.github.newsapp.NewsApplication
 import com.github.newsapp.domain.entities.DisplayInRecycleItem
 import com.github.newsapp.domain.entities.HeaderItem
@@ -7,7 +8,6 @@ import com.github.newsapp.domain.usecases.filesystem.FileSystemUseCase
 import com.github.newsapp.domain.usecases.loadingnews.LoadingUseCase
 import com.github.newsapp.ui.CiceroneScreens
 import com.github.newsapp.ui.view.NewsPageView
-import com.github.newsapp.util.loggingDebug
 import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,10 +20,13 @@ import javax.inject.Inject
 @InjectViewState
 class NewsPresenter(
     private val router: Router
-) : MvpPresenter<NewsPageView>() {
+) : MvpPresenter<NewsPageView>(), PresenterWithRetry, WithUpButton {
+
     init {
         NewsApplication.newsApplicationComponent.inject(this)
     }
+
+    var launchNumber = 0
 
     @Inject
     lateinit var loadingUseCase: LoadingUseCase
@@ -33,40 +36,61 @@ class NewsPresenter(
 
     private var newsList = emptyList<DisplayInRecycleItem>()
     private var currentPageNumber = 0
+    private var rateDialogActivated = false
 
     fun loadNews() {
-        loggingDebug("${newsList.isEmpty()}")
-        if (newsList.isEmpty())
-            loadingUseCase.loadNews({
-                loadingUseCase.loadPortion(1, {
-                    currentPageNumber = 1
-                    newsList = it
-                    newsList = listOf(HeaderItem()) + newsList
-                    viewState.updateNewsList(newsList)
-                }, {
-                    router.navigateTo(CiceroneScreens.retryScreen())
-                })
+        loadingUseCase.loadNews({
+            loadingUseCase.loadPortion(1, {
+                currentPageNumber = 1
+                newsList = it
+                newsList = listOf(HeaderItem()) + newsList
+                viewState.updateNewsList(newsList)
             }, {
-                router.navigateTo(CiceroneScreens.retryScreen())
+                dismissRatingDialog()
+                router.navigateTo(CiceroneScreens.retryScreen(this))
             })
-        else viewState.updateNewsList(newsList)
+        }, {
+            dismissRatingDialog()
+            router.navigateTo(CiceroneScreens.retryScreen(this))
+        })
     }
 
-    fun saveRating(rating: Float) {
-
+    private fun dismissRatingDialog() {
+        if (rateDialogActivated) {
+            rateDialogActivated = false
+            viewState.toggleRatingDialog(false)
+        }
     }
 
-    fun showRatingDialog(isFirstLaunch: Boolean) {
-        val rating = filesystemUseCase.getRating()
-        viewState.showRatingDialog(rating, isFirstLaunch)
+    fun revealFragment(view: View) {
+        viewState.showRevealAnim(view)
+    }
+
+    override fun onFirstViewAttach() {
+        super.onFirstViewAttach()
+//        вводим задержку для того, чтобы успела отыграться анимация перехода при первом запуске
+        viewState.translateLaunchNumber()
+        CoroutineScope(Dispatchers.Main).launch {
+            if (launchNumber == 1)
+                delay(1000)
+            loadNews()
+            showRatingDialog()
+        }
+    }
+
+    private fun showRatingDialog() {
+        if (!rateDialogActivated) {
+            rateDialogActivated = true
+            viewState.toggleRatingDialog(true)
+        }
     }
 
     fun loadNextPage() {
         if (loadingUseCase.everythingIsLoaded) return
         CoroutineScope(Dispatchers.Main).launch {
-            viewState.showLoading()
+            viewState.toggleLoading(true)
             delay(2000)
-            viewState.hideLoading()
+            viewState.toggleLoading(false)
             getNextPage()
         }
     }
@@ -77,7 +101,7 @@ class NewsPresenter(
             newsList = newsList + it
             viewState.updateNewsList(newsList)
         }, {
-            router.navigateTo(CiceroneScreens.retryScreen())
+            router.navigateTo(CiceroneScreens.retryScreen(this))
         })
     }
 
@@ -85,4 +109,12 @@ class NewsPresenter(
         router.navigateTo(CiceroneScreens.newsDetailsScreen(newsId))
     }
 
+    override fun retryLoading() {
+        viewState.loadNewsList()
+        showRatingDialog()
+    }
+
+    override fun toggleUpButton(toggle: Boolean) {
+        viewState.toggleUpButton(toggle)
+    }
 }

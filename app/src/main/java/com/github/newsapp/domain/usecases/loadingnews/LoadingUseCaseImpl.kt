@@ -5,7 +5,7 @@ import com.github.newsapp.domain.entities.NewsItem
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
 
-class LoadingUseCaseImpl(networkRepository: NetworkService) : LoadingUseCase(networkRepository) {
+class LoadingUseCaseImpl(networkService: NetworkService) : LoadingUseCase(networkService) {
 
     override fun loadNews(onLoadComplete: () -> Unit, onError: (t: Throwable) -> Unit) {
         networkRepository.getNews({

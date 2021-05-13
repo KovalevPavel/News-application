@@ -22,6 +22,7 @@ data class NewsItem(
     val type: NewsTypes,
     val previewImage: String? = null,
     val publishedAt: Long,
+    var publishedAtString: String = "",
     val isEnabled: Boolean
 ): DisplayInRecycleItem {
     override fun funCompare(other: DisplayInRecycleItem?): Boolean {

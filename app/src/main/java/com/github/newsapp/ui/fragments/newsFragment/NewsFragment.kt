@@ -9,26 +9,29 @@ import com.github.newsapp.databinding.FragmentNewsPageBinding
 import com.github.newsapp.domain.entities.DisplayInRecycleItem
 import com.github.newsapp.domain.usecases.filesystem.FileSystemUseCase
 import com.github.newsapp.presenters.NewsPresenter
+import com.github.newsapp.presenters.PresenterWithRetry
 import com.github.newsapp.startCircularReveal
-import com.github.newsapp.ui.ExitWithAnimation
-import com.github.newsapp.ui.FragmentWithRetry
 import com.github.newsapp.ui.fragments.newsFragment.newsRecyclerView.NewsItemsDecorator
 import com.github.newsapp.ui.fragments.newsFragment.newsRecyclerView.NewsOnScrollListener
 import com.github.newsapp.ui.fragments.newsFragment.newsRecyclerView.adapters.NewsRecyclerAdapter
-import com.github.newsapp.ui.fragments.newsFragment.ratedialog.RateAlertDialog
+import com.github.newsapp.ui.fragments.ratingDialogFragment.RatingDialogFragment
 import com.github.newsapp.ui.view.NewsPageView
 import com.github.newsapp.util.FragmentViewBinding
+import com.github.newsapp.util.loggingDebug
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import javax.inject.Inject
 
-class MainFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPageBinding::inflate),
-    NewsPageView, FragmentWithRetry, ExitWithAnimation {
+class NewsFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPageBinding::inflate),
+    NewsPageView, PresenterWithRetry {
 
-    private var dialog: RateAlertDialog? = null
+    private var dialog: RatingDialogFragment? = null
     private var newsAdapter: NewsRecyclerAdapter? = null
 
-    override var firstLaunch: Boolean = false
+//    флаг случившейся анимации при первом открытии приложения
+    private var animationRevealed = false
+    private val firstLaunch: Boolean
+        get() = launchNumber == 1
     private val launchNumber: Int
         get() = NewsApplication.currentLaunchNumber
 
@@ -50,12 +53,13 @@ class MainFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPa
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (firstLaunch) {
-            view.startCircularReveal()
-            firstLaunch = false
+            newsPresenter.revealFragment(view)
         }
+
         newsAdapter = NewsRecyclerAdapter(
-            this,
-            applicationContext
+            newsPresenter,
+            applicationContext,
+            requireActivity()
         ) { newsPosition ->
             newsAdapter?.getNewsID(newsPosition)?.let {
                 newsPresenter.navigateToDetails(it)
@@ -79,10 +83,6 @@ class MainFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPa
     override fun onCreate(savedInstanceState: Bundle?) {
         NewsApplication.newsApplicationComponent.inject(this)
         super.onCreate(savedInstanceState)
-        if (launchNumber >= 3 && launchNumber % 3 == 0) {
-//            TODO("Добавить вызов рейтинг-диалога")
-        }
-        newsPresenter.loadNews()
     }
 
     override fun loadNewsList() {
@@ -92,35 +92,45 @@ class MainFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPa
 
     override fun retryLoading() = loadNewsList()
 
+    override fun showRevealAnim(view: View) {
+        view.startCircularReveal()
+    }
+
     override fun updateNewsList(newsList: List<DisplayInRecycleItem>) {
+        loggingDebug("clearing queue")
         newsAdapter?.items = newsList
     }
 
-    override fun showUpButton() = binder.newsMotionLayout.transitionToEnd()
-    override fun hideUpButton() = binder.newsMotionLayout.transitionToStart()
-
-    override fun showLoading() {
-        binder.progressBar.visibility = View.VISIBLE
-        val lastIndex = (newsAdapter?.itemCount?.minus(1)) ?: 0
-        binder.recyclerNews.layoutManager?.scrollToPosition(lastIndex)
-    }
-
-    override fun hideLoading() {
-        binder.progressBar.visibility = View.GONE
-    }
-
-    override fun showRatingDialog(rating: Float, isFirstLaunch: Boolean) {
-        dialog = RateAlertDialog(applicationContext, isFirstLaunch)
-//        dialog as AlertDialog
-        dialog?.let {
-            it.setRating(rating)
-            it.show()
+    override fun toggleUpButton(toggle: Boolean) {
+        binder.newsMotionLayout.apply {
+            if (toggle) transitionToEnd()
+            else transitionToStart()
         }
+    }
+
+    override fun toggleLoading(toggle: Boolean) {
+        if (toggle) {
+            binder.progressBar.visibility = View.VISIBLE
+            val lastIndex = (newsAdapter?.itemCount?.minus(1)) ?: 0
+            binder.recyclerNews.layoutManager?.scrollToPosition(lastIndex)
+        } else binder.progressBar.visibility = View.GONE
+    }
+
+    override fun toggleRatingDialog(toggle: Boolean) {
+        if (toggle && launchNumber >= 3 && launchNumber % 3 == 0)
+            dialog = RatingDialogFragment().also {
+                it.show(childFragmentManager, null)
+            }
+        else dialog?.dismissAllowingStateLoss()
+    }
+
+    override fun translateLaunchNumber() {
+        newsPresenter.launchNumber = launchNumber
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         newsAdapter = null
-//        dialog?.dismiss()
+        dialog?.dismissAllowingStateLoss()
     }
 }

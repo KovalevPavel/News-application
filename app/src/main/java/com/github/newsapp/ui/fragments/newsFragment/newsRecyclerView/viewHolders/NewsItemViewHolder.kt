@@ -11,9 +11,17 @@ import com.github.newsapp.ui.fragments.newsFragment.newsRecyclerView.viewHolders
 
 class NewsItemViewHolder(
     private val binder: ItemNewsBinding,
+    item: NewsItem,
     private val context: Context,
     onClickListener: (Int) -> Unit
-) : AbstractViewHolder(binder, context, onClickListener) {
+) : AbstractViewHolder(binder) {
+    init {
+        if (item.isEnabled)
+            itemView.setOnClickListener {
+                onClickListener(adapterPosition)
+            }
+    }
+
     private lateinit var holderState: ItemState
 
     override fun bind(item: DisplayInRecycleItem) {
@@ -22,16 +30,16 @@ class NewsItemViewHolder(
         holderState.prepareViewHolder(item.previewImage)
         binder.apply {
             textItemType.setText(item.type.itemHeader)
-            textPublishedAt.text = timestampUseCase.getPublishedAtString(item.publishedAt)
+            textPublishedAt.text = item.publishedAtString
             textNewsHeader.text = item.title
             textNewsDescription.text = item.description
         }
     }
 
-    private fun setState (newsType: NewsTypes) {
+    private fun setState(newsType: NewsTypes) {
         holderState = when (newsType) {
-            NewsTypes.NEWS -> ItemStateNews (binder, context)
-            NewsTypes.ALERT -> ItemStateAlert (binder, context)
+            NewsTypes.NEWS -> ItemStateNews(binder, context)
+            NewsTypes.ALERT -> ItemStateAlert(binder, context)
         }
     }
 }

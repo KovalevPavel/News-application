@@ -1,7 +1,7 @@
 package com.github.newsapp.presenters
 
 import com.github.newsapp.NewsApplication
-import com.github.newsapp.ui.fragments.newsFragment.MainFragment
+import com.github.newsapp.ui.fragments.newsFragment.NewsFragment
 import com.github.newsapp.ui.fragments.onboardingFragment.OnboardingFragment
 import com.github.newsapp.ui.view.ActivityView
 import moxy.InjectViewState
@@ -13,7 +13,7 @@ class ActivityPresenter : MvpPresenter<ActivityView>() {
 
     fun replaceFragment() {
         val fragment =
-            if (checkOnboardNeeded()) OnboardingFragment() else MainFragment()
+            if (checkOnboardNeeded()) OnboardingFragment() else NewsFragment()
         viewState.navigateToFragment(fragment)
         fileSystemUseCase.setOnboardingNeeded(false)
     }
