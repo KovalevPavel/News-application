@@ -5,9 +5,9 @@ import com.github.newsapp.domain.entities.NewsItem
 import com.github.newsapp.domain.entities.NewsItemExtended
 import com.github.newsapp.domain.entities.ServerResponseItem
 import com.github.newsapp.domain.usecases.loadingnews.NewsTypes
-import com.github.newsapp.util.loggingDebug
 import kotlin.random.Random
 
+//Фабрика, отвечающая за генерацию фейковых новостей
 class ServerResponseFactory {
     companion object {
         private const val DEFAULT_PREVIEW =
@@ -92,7 +92,6 @@ class ServerResponseFactory {
                 )
             )
         }
-        loggingDebug("${tempList.size}")
         return tempList
     }
 

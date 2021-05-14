@@ -17,7 +17,6 @@ import com.github.newsapp.ui.fragments.newsDetailsFragment.fragmentStates.StateN
 import com.github.newsapp.ui.fragments.newsDetailsFragment.fragmentStates.StateOneImage
 import com.github.newsapp.ui.view.NewsDetailsView
 import com.github.newsapp.util.FragmentViewBinding
-import com.github.newsapp.util.loggingDebug
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 
@@ -83,7 +82,6 @@ class NewsDetailsFragment :
 
     //    заносим данные в интерфейс
     override fun bindDetails(newsDetails: NewsItemExtended) {
-        loggingDebug("$newsDetails")
         binder.apply {
             textNewsHeader.text = newsDetails.title
             textNewsDescription.text = newsDetails.description

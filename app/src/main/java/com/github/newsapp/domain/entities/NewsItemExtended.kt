@@ -2,7 +2,7 @@ package com.github.newsapp.domain.entities
 
 import com.github.newsapp.domain.usecases.loadingnews.NewsTypes
 import com.squareup.moshi.JsonClass
-
+//Класс для получения от сервера деталей определенной новости
 @JsonClass(generateAdapter = true)
 data class NewsItemExtended(
     val id: Long,

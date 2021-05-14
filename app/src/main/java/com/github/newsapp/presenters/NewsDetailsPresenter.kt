@@ -8,7 +8,6 @@ import com.github.newsapp.domain.entities.NewsItemExtended
 import com.github.newsapp.domain.usecases.viewpagerInteraction.ViewPagerInteraction
 import com.github.newsapp.ui.CiceroneScreens
 import com.github.newsapp.ui.view.NewsDetailsView
-import com.github.newsapp.util.loggingDebug
 import com.github.terrakok.cicerone.Router
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
@@ -32,7 +31,7 @@ class NewsDetailsPresenter(
     lateinit var viewPagerFullScreenInteractor: ViewPagerInteraction
 
     @Inject
-    lateinit var networkRepository: NetworkService
+    lateinit var networkService: NetworkService
 
     //    текущий объект новостей
     private lateinit var currentNewsDetails: NewsItemExtended
@@ -60,7 +59,7 @@ class NewsDetailsPresenter(
 
     private fun loadDetails() {
         newsID?.let { newsID ->
-            networkRepository.getNewsDetails(newsID,
+            networkService.getNewsDetails(newsID,
                 {
                     currentNewsDetails = it
                     viewState.bindDetails(it)
@@ -73,7 +72,6 @@ class NewsDetailsPresenter(
 
     //    обновление текущего изображения
     fun updatePreviewImage() {
-        loggingDebug(" receiving: ${currentImageIndex}")
         viewState.setImageToViewPager(currentImageIndex)
     }
 

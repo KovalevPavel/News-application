@@ -4,7 +4,6 @@ import com.github.newsapp.NewsApplication
 import com.github.newsapp.data.remote.retrofit.RetrofitApi
 import com.github.newsapp.domain.entities.NewsItem
 import com.github.newsapp.domain.entities.NewsItemExtended
-import com.github.newsapp.util.loggingDebug
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -34,7 +33,6 @@ class RetrofitService(
             .observeOn(Schedulers.io())
             .subscribe({
                 newsList = it
-                loggingDebug("size: ${newsList.size}")
                 onSuccess()
             }, {
                 onFail(it)
@@ -75,7 +73,6 @@ class RetrofitService(
         } catch (e: IndexOutOfBoundsException) {
             end = newsList.size - 1
         }
-        loggingDebug("$start:$end")
         val resultList = newsList.filterIndexed { index, _ ->
             index in (start..end)
         }

@@ -10,14 +10,13 @@ import com.github.newsapp.domain.entities.DisplayInRecycleItem
 import com.github.newsapp.domain.usecases.filesystem.FileSystemUseCase
 import com.github.newsapp.presenters.NewsPresenter
 import com.github.newsapp.presenters.PresenterWithRetry
-import com.github.newsapp.startCircularReveal
+import com.github.newsapp.util.startCircularReveal
 import com.github.newsapp.ui.fragments.newsFragment.newsRecyclerView.NewsItemsDecorator
 import com.github.newsapp.ui.fragments.newsFragment.newsRecyclerView.NewsOnScrollListener
 import com.github.newsapp.ui.fragments.newsFragment.newsRecyclerView.adapters.NewsRecyclerAdapter
 import com.github.newsapp.ui.fragments.ratingDialogFragment.RatingDialogFragment
 import com.github.newsapp.ui.view.NewsPageView
 import com.github.newsapp.util.FragmentViewBinding
-import com.github.newsapp.util.loggingDebug
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import javax.inject.Inject
@@ -28,8 +27,6 @@ class NewsFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPa
     private var dialog: RatingDialogFragment? = null
     private var newsAdapter: NewsRecyclerAdapter? = null
 
-//    флаг случившейся анимации при первом открытии приложения
-    private var animationRevealed = false
     private val firstLaunch: Boolean
         get() = launchNumber == 1
     private val launchNumber: Int
@@ -97,7 +94,6 @@ class NewsFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPa
     }
 
     override fun updateNewsList(newsList: List<DisplayInRecycleItem>) {
-        loggingDebug("clearing queue")
         newsAdapter?.items = newsList
     }
 

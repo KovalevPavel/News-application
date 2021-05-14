@@ -38,8 +38,22 @@ class NewsPresenter(
     private var currentPageNumber = 0
     private var rateDialogActivated = false
 
+    override fun onFirstViewAttach() {
+        super.onFirstViewAttach()
+//        вводим задержку для того, чтобы успела отыграться анимация перехода при первом запуске
+        viewState.translateLaunchNumber()
+        CoroutineScope(Dispatchers.Main).launch {
+            if (launchNumber == 1)
+                delay(1000)
+            loadNews()
+            showRatingDialog()
+        }
+    }
+
+//    Загрузка списка новостей
     fun loadNews() {
         loadingUseCase.loadNews({
+//            Загружаем первую страницу списка новостей
             loadingUseCase.loadPortion(1, {
                 currentPageNumber = 1
                 newsList = it
@@ -55,29 +69,7 @@ class NewsPresenter(
         })
     }
 
-    private fun dismissRatingDialog() {
-        if (rateDialogActivated) {
-            rateDialogActivated = false
-            viewState.toggleRatingDialog(false)
-        }
-    }
-
-    fun revealFragment(view: View) {
-        viewState.showRevealAnim(view)
-    }
-
-    override fun onFirstViewAttach() {
-        super.onFirstViewAttach()
-//        вводим задержку для того, чтобы успела отыграться анимация перехода при первом запуске
-        viewState.translateLaunchNumber()
-        CoroutineScope(Dispatchers.Main).launch {
-            if (launchNumber == 1)
-                delay(1000)
-            loadNews()
-            showRatingDialog()
-        }
-    }
-
+//    показываем диалог рейтинга
     private fun showRatingDialog() {
         if (!rateDialogActivated) {
             rateDialogActivated = true
@@ -85,6 +77,20 @@ class NewsPresenter(
         }
     }
 
+//    скрываем диалог рейтинга
+    private fun dismissRatingDialog() {
+        if (rateDialogActivated) {
+            rateDialogActivated = false
+            viewState.toggleRatingDialog(false)
+        }
+    }
+
+//    показываем фрагмент с анимацией
+    fun revealFragment(view: View) {
+        viewState.showRevealAnim(view)
+    }
+
+//    отправка очередной страницы списка новостей во view
     fun loadNextPage() {
         if (loadingUseCase.everythingIsLoaded) return
         CoroutineScope(Dispatchers.Main).launch {
@@ -95,6 +101,7 @@ class NewsPresenter(
         }
     }
 
+//    загрузка очередной страницы списка новостей
     private fun getNextPage() {
         currentPageNumber += 1
         loadingUseCase.loadPortion(currentPageNumber, {
@@ -105,15 +112,18 @@ class NewsPresenter(
         })
     }
 
+//    навигация к деталям новости
     fun navigateToDetails(newsId: Long) {
         router.navigateTo(CiceroneScreens.newsDetailsScreen(newsId))
     }
 
+//    повторная попытка загрузить список новостей
     override fun retryLoading() {
         viewState.loadNewsList()
         showRatingDialog()
     }
 
+//    переключение кнопки "вверх"
     override fun toggleUpButton(toggle: Boolean) {
         viewState.toggleUpButton(toggle)
     }

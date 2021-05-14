@@ -1,4 +1,4 @@
-package com.github.newsapp
+package com.github.newsapp.util
 
 import android.view.View
 import android.view.ViewAnimationUtils

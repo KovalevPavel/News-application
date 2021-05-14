@@ -7,7 +7,6 @@ import com.github.newsapp.databinding.ItemNewsHeaderBinding
 import com.github.newsapp.domain.entities.DisplayInRecycleItem
 import com.github.newsapp.domain.entities.HeaderItem
 import com.github.newsapp.ui.fragments.newsFragment.newsRecyclerView.viewHolders.HeaderItemViewHolder
-import com.github.newsapp.util.loggingDebug
 import com.hannesdorfmann.adapterdelegates4.AbsListItemAdapterDelegate
 
 class HeaderItemAdapterDelegate (private val parentActivity: Activity) :

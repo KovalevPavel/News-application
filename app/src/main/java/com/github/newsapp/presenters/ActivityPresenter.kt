@@ -11,6 +11,7 @@ import moxy.MvpPresenter
 class ActivityPresenter : MvpPresenter<ActivityView>() {
     private val fileSystemUseCase = NewsApplication.newsApplicationComponent.getFileSystemUseCase()
 
+//    замена фрагмента в контейнере
     fun replaceFragment() {
         val fragment =
             if (checkOnboardNeeded()) OnboardingFragment() else NewsFragment()
@@ -18,6 +19,7 @@ class ActivityPresenter : MvpPresenter<ActivityView>() {
         fileSystemUseCase.setOnboardingNeeded(false)
     }
 
+//    проверка, нужно ли показывать onvoarding
     private fun checkOnboardNeeded(): Boolean {
         return fileSystemUseCase.getOnboardingNeeded()
     }

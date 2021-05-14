@@ -1,5 +1,6 @@
 package com.github.newsapp.domain.usecases.filesystem
 
+//Интерфейс для классов, описывающих операции с использованием файловой системы
 interface FileSystemUseCase {
     fun getLaunchNumber(): Int
     fun increaseLaunchNumber(oldNumber: Int)

@@ -31,6 +31,7 @@ class RatingDialogFragment : MvpAppCompatDialogFragment(), RateDialogView {
                 ratingBar.rating = it
                 setRatingButtonState(it)
             }
+//            настройка кнопки в зависимости от установленного рейтинга
             ratingBar.setOnRatingBarChangeListener { _, rating, _ ->
                 setRatingButtonState(rating)
             }

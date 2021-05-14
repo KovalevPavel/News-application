@@ -1,11 +1,10 @@
 package com.github.newsapp
 
 import android.app.Application
-import com.github.newsapp.di.modules.AppContextModule
 import com.github.newsapp.di.DaggerNewsApplicationComponent
 import com.github.newsapp.di.NewsApplicationComponent
+import com.github.newsapp.di.modules.AppContextModule
 import com.github.newsapp.domain.usecases.filesystem.FileSystemUseCase
-import com.github.newsapp.util.loggingDebug
 import com.github.terrakok.cicerone.Cicerone
 import com.jakewharton.threetenabp.AndroidThreeTen
 
@@ -31,7 +30,6 @@ class NewsApplication : Application() {
         AndroidThreeTen.init(this)
         instance = this
         setLaunchInfo()
-        loggingDebug("curr = $currentLaunchNumber")
     }
 
     private fun initiateDagger() {

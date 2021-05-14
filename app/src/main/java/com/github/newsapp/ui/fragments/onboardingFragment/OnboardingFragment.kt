@@ -28,6 +28,7 @@ class OnboardingFragment :
             ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
+//                настройка текста кнопки в зависимости от текущей страницы
                 onboardingPresenter.checkCurrentScreen(position == viewPagerAdapter.itemCount - 1)
             }
         })

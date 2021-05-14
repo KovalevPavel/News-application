@@ -7,12 +7,11 @@ import com.github.newsapp.databinding.ItemOnboardingBinding
 
 class OnboardingViewPagerAdapter :
     RecyclerView.Adapter<OnboardingViewPagerAdapter.OnboardingViewHolder>() {
-    var onboardingScreensList = listOf(
+    private val onboardingScreensList = listOf(
         OnboardingItem(0),
         OnboardingItem(1),
         OnboardingItem(2)
     )
-    private set
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OnboardingViewHolder {
         val inflater = LayoutInflater.from(parent.context)

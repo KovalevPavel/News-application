@@ -11,6 +11,7 @@ import com.squareup.moshi.JsonClass
     type - тип элемента списка
     image - ссылка на картинку новости
     publishedAt - timestamp - дата публикации новости
+    publishedAtString - переменная под строковое представление времени публикации
     isEnabled - можно ли кликнуть на элемент и перейти в детали новости
  */
 
