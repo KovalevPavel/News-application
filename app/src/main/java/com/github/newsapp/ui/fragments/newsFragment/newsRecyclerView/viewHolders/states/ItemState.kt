@@ -2,7 +2,7 @@ package com.github.newsapp.ui.fragments.newsFragment.newsRecyclerView.viewHolder
 
 import android.content.Context
 import android.view.View
-import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageView
 import com.github.newsapp.R
 import com.github.newsapp.databinding.ItemNewsBinding
 import com.squareup.picasso.Picasso
@@ -11,7 +11,7 @@ abstract class ItemState internal constructor(
     open val binder: ItemNewsBinding,
     open val context: Context
 ) {
-    abstract var imageContainer: ImageView
+    abstract var imageContainer: AppCompatImageView
     abstract fun prepareViewHolder(imageUrl: String?)
 
     fun showSmallImage(show: Boolean) {
