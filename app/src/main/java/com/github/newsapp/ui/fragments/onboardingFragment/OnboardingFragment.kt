@@ -2,7 +2,7 @@ package com.github.newsapp.ui.fragments.onboardingFragment
 
 import androidx.viewpager2.widget.ViewPager2
 import com.github.newsapp.databinding.FragmentOnboardingBinding
-import com.github.newsapp.presenters.OnboardingPresenter
+import com.github.newsapp.ui.presenters.OnboardingPresenter
 import com.github.newsapp.ui.view.OnboardingView
 import com.github.newsapp.util.FragmentViewBinding
 import moxy.presenter.InjectPresenter

@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.github.newsapp.R
 import com.github.newsapp.databinding.ItemDetailsImageBinding
-import com.github.newsapp.domain.entities.ImageToLoad
+import com.github.newsapp.data.entities.ImageToLoad
 import com.squareup.picasso.Picasso
 
 class ViewPagerAdapter(private val onClick: () -> Unit) :

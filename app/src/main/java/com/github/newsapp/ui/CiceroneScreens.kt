@@ -1,6 +1,6 @@
 package com.github.newsapp.ui
 
-import com.github.newsapp.presenters.PresenterWithRetry
+import com.github.newsapp.ui.presenters.PresenterWithRetry
 import com.github.newsapp.ui.fragments.newsDetailsFragment.NewsDetailsFragment
 import com.github.newsapp.ui.fragments.newsFragment.NewsFragment
 import com.github.newsapp.ui.fragments.retryFragment.FragmentRetry

@@ -1,17 +1,18 @@
 package com.github.newsapp.di.modules
 
-import android.content.Context
-import com.github.newsapp.domain.usecases.timestamp.ThreetenTimeUseCase
-import com.github.newsapp.domain.usecases.timestamp.TimestampUseCase
+import com.github.newsapp.app.NewsApplication
+import com.github.newsapp.data.timestampRepository.TimestampRepository
+import com.github.newsapp.data.timestampRepository.threeten.ThreetenTimeRepository
 import dagger.Module
 import dagger.Provides
-import javax.inject.Singleton
 
+/**
+ * Модуль, предоставляющий репозиторий для работы с датой/временем
+ */
 @Module
 class TimeStampModule {
     @Provides
-    @Singleton
-    fun getTimeStampRepository(context: Context): TimestampUseCase {
-        return ThreetenTimeUseCase(context)
+    fun getTimeStampRepository(appContext: NewsApplication): TimestampRepository {
+        return ThreetenTimeRepository(appContext)
     }
 }

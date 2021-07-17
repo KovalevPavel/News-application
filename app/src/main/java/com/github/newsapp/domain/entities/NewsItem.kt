@@ -1,18 +1,17 @@
 package com.github.newsapp.domain.entities
 
-import com.github.newsapp.domain.usecases.loadingnews.NewsTypes
+import com.github.newsapp.domain.usecases.network.NewsTypes
 import com.squareup.moshi.JsonClass
 
-/*
-Класс элемента списка новостей
-    id - идентефикатор новости
-    title - заголовок новости
-    description - описание новости
-    type - тип элемента списка
-    image - ссылка на картинку новости
-    publishedAt - timestamp - дата публикации новости
-    publishedAtString - переменная под строковое представление времени публикации
-    isEnabled - можно ли кликнуть на элемент и перейти в детали новости
+/**
+ * Класс элемента списка новостей
+ * @property id идентефикатор новости
+ * @property title заголовок новости
+ * @property description описание новости
+ * @property type тип элемента списка
+ * @property previewImage ссылка на картинку новости
+ * @property publishedAt timestamp публикации новости
+ * @property isEnabled можно ли кликнуть на элемент и перейти в детали новости
  */
 
 @JsonClass (generateAdapter = true)
@@ -23,7 +22,6 @@ data class NewsItem(
     val type: NewsTypes,
     val previewImage: String? = null,
     val publishedAt: Long,
-    var publishedAtString: String = "",
     val isEnabled: Boolean
 ): DisplayInRecycleItem {
     override fun funCompare(other: DisplayInRecycleItem?): Boolean {

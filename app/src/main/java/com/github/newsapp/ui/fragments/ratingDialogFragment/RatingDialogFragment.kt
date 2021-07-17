@@ -5,7 +5,7 @@ import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import com.github.newsapp.databinding.DialogRateBinding
-import com.github.newsapp.presenters.RateDialogPresenter
+import com.github.newsapp.ui.presenters.RateDialogPresenter
 import com.github.newsapp.ui.view.RateDialogView
 import moxy.MvpAppCompatDialogFragment
 import moxy.presenter.InjectPresenter

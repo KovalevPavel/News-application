@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.viewpager2.widget.ViewPager2
 import com.github.newsapp.databinding.FragmentViewpagerFullscreenBinding
-import com.github.newsapp.domain.entities.ImageToLoad
-import com.github.newsapp.presenters.ViewPagerFullScreenPresenter
+import com.github.newsapp.data.entities.ImageToLoad
+import com.github.newsapp.ui.presenters.ViewPagerFullScreenPresenter
 import com.github.newsapp.ui.view.ViewPagerFullScreen
 import com.github.newsapp.util.FragmentViewBinding
 import moxy.presenter.InjectPresenter

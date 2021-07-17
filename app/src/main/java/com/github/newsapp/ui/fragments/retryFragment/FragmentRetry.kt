@@ -3,12 +3,22 @@ package com.github.newsapp.ui.fragments.retryFragment
 import android.os.Bundle
 import android.view.View
 import com.github.newsapp.databinding.FragmentErrorLoadingBinding
-import com.github.newsapp.presenters.PresenterWithRetry
-import com.github.newsapp.presenters.RetryPresenter
+import com.github.newsapp.di.ComponentObject
+import com.github.newsapp.ui.presenters.PresenterWithRetry
+import com.github.newsapp.ui.presenters.RetryPresenter
 import com.github.newsapp.ui.view.RetryScreenView
 import com.github.newsapp.util.FragmentViewBinding
+import com.github.terrakok.cicerone.Router
 import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
+import javax.inject.Inject
 
+/**
+ * Фрагмент, отвечающиц за отображение диалога повторного подключения
+ * @property router роутер Cicerone
+ * @property parentViewPresenter презентер родительского объекта. Используется для трансляции команды повторного подключения.
+ * @property retryPresenter презентер для экрана "Повторить подключение"
+ */
 class FragmentRetry :
     FragmentViewBinding<FragmentErrorLoadingBinding>(FragmentErrorLoadingBinding::inflate),
     RetryScreenView {
@@ -21,10 +31,23 @@ class FragmentRetry :
         }
     }
 
+    @Inject
+    lateinit var router: Router
+
     private var parentViewPresenter: PresenterWithRetry? = null
 
     @InjectPresenter
     lateinit var retryPresenter: RetryPresenter
+
+    @ProvidePresenter
+    fun provideRetryPresenter(): RetryPresenter {
+        return RetryPresenter(router)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        injectDependencies()
+        super.onCreate(savedInstanceState)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -36,5 +59,12 @@ class FragmentRetry :
 
     override fun navigateBack() {
         parentViewPresenter?.retryLoading()
+    }
+
+    private fun injectDependencies() {
+        ComponentObject.apply {
+            addRetryComponent()
+            retryComponent?.inject(this@FragmentRetry)
+        }
     }
 }

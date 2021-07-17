@@ -1,9 +1,12 @@
 package com.github.newsapp.di.modules
 
-import com.github.newsapp.data.remote.NetworkService
-import com.github.newsapp.data.remote.RetrofitService
-import com.github.newsapp.data.remote.retrofit.FakeRetrofitApi
-import com.github.newsapp.data.remote.retrofit.RetrofitApi
+import com.github.newsapp.data.networkRepository.NetworkRepository
+import com.github.newsapp.data.networkRepository.NetworkRepositoryImpl
+import com.github.newsapp.data.networkRepository.local.FakeNetworkApi
+import com.github.newsapp.data.networkRepository.local.ServerResponseFactory
+import com.github.newsapp.data.networkRepository.remote.retrofit.NetworkApi
+import com.github.newsapp.di.qualifiers.api.LocalApi
+import com.github.newsapp.di.qualifiers.api.RemoteApi
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -11,9 +14,13 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
 import java.util.*
 import javax.inject.Singleton
 
+/**
+ * Модуль, содержащий методы, предназначенные для получения объектов, необходимых для осуществления сетевого подключения
+ */
 @Module
 class NetworkModule {
     companion object {
@@ -51,14 +58,21 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun getNetworkApi(retrofit: Retrofit): RetrofitApi {
-//        return retrofit.create()
-        return FakeRetrofitApi()
+    @RemoteApi
+    fun getNetworkApi(retrofit: Retrofit): NetworkApi {
+        return retrofit.create()
     }
 
     @Provides
     @Singleton
-    fun getNetworkService(retrofit: RetrofitApi): NetworkService {
-        return RetrofitService(retrofit)
+    @LocalApi
+    fun providesLocalRepository(): NetworkApi {
+        return FakeNetworkApi(ServerResponseFactory())
+    }
+
+    @Provides
+    @Singleton
+    fun getNetworkRepository(@LocalApi networkApi: NetworkApi): NetworkRepository {
+        return NetworkRepositoryImpl(networkApi)
     }
 }

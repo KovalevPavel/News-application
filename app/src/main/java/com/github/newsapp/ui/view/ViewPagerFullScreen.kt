@@ -1,6 +1,6 @@
 package com.github.newsapp.ui.view
 
-import com.github.newsapp.domain.entities.ImageToLoad
+import com.github.newsapp.data.entities.ImageToLoad
 import moxy.MvpView
 import moxy.viewstate.strategy.OneExecutionStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
