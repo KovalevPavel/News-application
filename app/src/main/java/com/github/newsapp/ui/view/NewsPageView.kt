@@ -12,6 +12,7 @@ import moxy.viewstate.strategy.StateStrategyType
 interface NewsPageView : MvpView {
     /**
      * Показ начальной анимации при переходе с onboarding-фрагмента
+     * @param view объект [View]
      */
     fun showRevealAnim(view: View)
 

@@ -1,14 +1,15 @@
 package com.github.newsapp.ui.presenters
 
 import android.view.View
+import com.github.newsapp.app.NewsApplication
 import com.github.newsapp.di.ComponentObject
 import com.github.newsapp.domain.entities.DisplayInRecycleItem
 import com.github.newsapp.domain.entities.HeaderItem
 import com.github.newsapp.domain.usecases.UserNameUseCase
 import com.github.newsapp.domain.usecases.network.NetworkUseCase
-import com.github.newsapp.ui.CiceroneScreens
+import com.github.newsapp.ui.cicerone.CiceroneScreens
+import com.github.newsapp.ui.cicerone.NewsRouter
 import com.github.newsapp.ui.view.NewsPageView
-import com.github.terrakok.cicerone.Router
 import kotlinx.coroutines.*
 import moxy.InjectViewState
 import moxy.MvpPresenter
@@ -17,6 +18,7 @@ import javax.inject.Inject
 /**
  * Презентер для экрана со списком новостей
  * @property launchNumber порядковый номер запуска приложения
+ * @property networkScope scope, предназначенный для запуска задач через сеть
  * @property loadingUseCase интерактор для операций с загрузкой данных с сервера
  * @property userNameUseCase интерактор для операций с именем пользователя
  * @property router роутер Cicerone, отвечающий за навигацию внутри приложения
@@ -27,7 +29,8 @@ import javax.inject.Inject
 @InjectViewState
 class NewsPresenter : MvpPresenter<NewsPageView>(), PresenterWithRetry, WithUpButton {
 
-    private var launchNumber = 0
+    private val launchNumber: Int
+        get() = NewsApplication.currentLaunchNumber
 
     private val networkScope = CoroutineScope(Dispatchers.IO)
 
@@ -38,7 +41,7 @@ class NewsPresenter : MvpPresenter<NewsPageView>(), PresenterWithRetry, WithUpBu
     lateinit var userNameUseCase: UserNameUseCase
 
     @Inject
-    lateinit var router: Router
+    lateinit var router: NewsRouter
 
     private var newsList = emptyList<DisplayInRecycleItem>()
     private var currentPageNumber = 0
@@ -46,21 +49,6 @@ class NewsPresenter : MvpPresenter<NewsPageView>(), PresenterWithRetry, WithUpBu
 
     init {
         injectDependencies()
-    }
-
-    private fun translateLaunchNumber (number: Int) {
-        launchNumber = number
-    }
-
-    override fun onFirstViewAttach() {
-        super.onFirstViewAttach()
-//        вводим задержку для того, чтобы успела отыграться анимация перехода при первом запуске
-        CoroutineScope(Dispatchers.Main).launch {
-            if (launchNumber == 1)
-                delay(1000)
-            loadNews()
-            showRatingDialog()
-        }
     }
 
     override fun onDestroy() {
@@ -80,13 +68,22 @@ class NewsPresenter : MvpPresenter<NewsPageView>(), PresenterWithRetry, WithUpBu
         ComponentObject.clearNewsComponent()
     }
 
+    override fun onFirstViewAttach() {
+        super.onFirstViewAttach()
+        CoroutineScope(Dispatchers.Main).launch {
+            loadRecords()
+            showRatingDialog()
+        }
+    }
+
     /**
-     * Загрузка списка новостей
+     * Загрузка списка записей
      */
-    suspend fun loadNews() {
+    suspend fun loadRecords() {
+        viewState.toggleRecordsLoading(true)
         loadingUseCase.getNews(
             onSuccess = {
-//            Загружаем первую страницу списка новостей
+//            Загружаем первую страницу списка записей
                 networkScope.launch {
                     loadingUseCase.loadPortion(1)
                     {
@@ -94,12 +91,14 @@ class NewsPresenter : MvpPresenter<NewsPageView>(), PresenterWithRetry, WithUpBu
                         newsList = it
                         newsList = listOf(HeaderItem()) + newsList
                         viewState.updateNewsList(newsList)
+                        viewState.toggleRecordsLoading(false)
                     }
                 }
             },
             onFail =
             {
                 dismissRatingDialog()
+                viewState.toggleRecordsLoading(false)
                 router.navigateTo(CiceroneScreens.retryScreen(this@NewsPresenter))
             })
     }
@@ -108,7 +107,8 @@ class NewsPresenter : MvpPresenter<NewsPageView>(), PresenterWithRetry, WithUpBu
      * Показ диалог рейтинга
      */
     private fun showRatingDialog() {
-        if (!rateDialogActivated) {
+        if (rateDialogActivated) return
+        if (launchNumber >= 3 && launchNumber % 3 == 0) {
             rateDialogActivated = true
             viewState.toggleRatingDialog(true)
         }
@@ -128,7 +128,8 @@ class NewsPresenter : MvpPresenter<NewsPageView>(), PresenterWithRetry, WithUpBu
      * Показ фрагмента с начальной анимацией
      */
     fun revealFragment(view: View) {
-        viewState.showRevealAnim(view)
+        if (launchNumber == 1)
+            viewState.showRevealAnim(view)
     }
 
     /**
@@ -138,18 +139,17 @@ class NewsPresenter : MvpPresenter<NewsPageView>(), PresenterWithRetry, WithUpBu
         if (loadingUseCase.everythingIsLoaded) return
         CoroutineScope(Dispatchers.Main).launch {
             viewState.togglePageLoading(true)
-            delay(2000)
+            getNextPageJob().join()
             viewState.togglePageLoading(false)
-            getNextPage()
         }
     }
 
     /**
-     * Загрузка очередной страницы списка новостей
+     * Получение объекта [Job] для загрузки очередной страницы с записями
      */
-    private fun getNextPage() {
-        currentPageNumber += 1
-        networkScope.launch {
+    private suspend fun getNextPageJob(): Job {
+        return networkScope.launch {
+            currentPageNumber += 1
             loadingUseCase.loadPortion(
                 currentPageNumber
             ) {
@@ -160,16 +160,16 @@ class NewsPresenter : MvpPresenter<NewsPageView>(), PresenterWithRetry, WithUpBu
     }
 
     /**
-     * Навигация к деталям новости
+     * Навигация к деталям записи
      */
-    fun navigateToDetails(newsId: Long) {
-        router.navigateTo(CiceroneScreens.newsDetailsScreen(newsId))
+    fun navigateToDetails(recId: Long) {
+        router.navigateTo(CiceroneScreens.newsDetailsScreen(recId))
     }
 
     override fun retryLoading() {
         networkScope.launch {
             viewState.togglePageLoading(true)
-            loadNews()
+            loadRecords()
             showRatingDialog()
         }
     }

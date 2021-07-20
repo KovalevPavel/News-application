@@ -10,6 +10,9 @@ import com.github.newsapp.ui.view.RateDialogView
 import moxy.MvpAppCompatDialogFragment
 import moxy.presenter.InjectPresenter
 
+/**
+ * Фрагмент, отвечающий за отображение диалога рейтинга
+ */
 class RatingDialogFragment : MvpAppCompatDialogFragment(), RateDialogView {
     @InjectPresenter
     lateinit var ratePresenter: RateDialogPresenter
@@ -27,10 +30,11 @@ class RatingDialogFragment : MvpAppCompatDialogFragment(), RateDialogView {
 
     private fun bindUI() {
         binder.apply {
-            ratePresenter.getRating().also {
-                ratingBar.rating = it
-                setRatingButtonState(it)
+            ratePresenter.getRating {newRating ->
+                ratingBar.rating = newRating
+                setRatingButtonState(newRating)
             }
+
 //            настройка кнопки в зависимости от установленного рейтинга
             ratingBar.setOnRatingBarChangeListener { _, rating, _ ->
                 setRatingButtonState(rating)

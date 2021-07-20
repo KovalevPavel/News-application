@@ -3,17 +3,10 @@ package com.github.newsapp.ui.view
 import com.github.newsapp.data.entities.RecItemExtended
 import moxy.MvpView
 import moxy.viewstate.strategy.AddToEndSingleStrategy
-import moxy.viewstate.strategy.OneExecutionStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
 
 @StateStrategyType(AddToEndSingleStrategy::class)
 interface NewsDetailsView : MvpView {
-    /**
-     * Обновление id записи
-     */
-    @StateStrategyType(OneExecutionStateStrategy::class)
-    fun updateNewsID()
-
     /**
      * Заполнение полей View полученными данными
      * @param details объект с деталями записи
@@ -25,4 +18,9 @@ interface NewsDetailsView : MvpView {
      * @param imageID id изображения
      */
     fun setImageToViewPager(imageID: Int)
+
+    /**
+     * Переключение видимости ProgressBar
+     */
+    fun toggleDetailsLoading (toggle: Boolean)
 }

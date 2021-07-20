@@ -1,13 +1,15 @@
 package com.github.newsapp.domain.usecases
 
-import com.github.newsapp.data.FileSystemRepository
+import com.github.newsapp.data.RatingRepository
+import com.github.newsapp.di.scopes.RatingScope
 import javax.inject.Inject
 
-class RatingUseCase @Inject constructor(private val fileSystemRepo: FileSystemRepository) {
-    fun getRating(): Float {
-        return fileSystemRepo.getRating()
+@RatingScope
+class RatingUseCase @Inject constructor(private val ratingRepo: RatingRepository) {
+    suspend fun getRating(): Float {
+        return ratingRepo.getRating()
     }
-    fun setRating (rating: Float) {
-        fileSystemRepo.setRating(rating)
+    suspend fun setRating (rating: Float) {
+        ratingRepo.setRating(rating)
     }
 }

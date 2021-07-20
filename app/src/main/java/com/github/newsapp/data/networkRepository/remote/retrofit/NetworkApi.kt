@@ -9,10 +9,10 @@ import retrofit2.http.Path
 
 interface NetworkApi {
     @GET("/newsfeed")
-    fun getNewsList(): Single<ServerResponseItem>
+    fun getRecordsList(): Single<ServerResponseItem>
 
     @GET("/newsfeed/{newsID}")
-    fun getNewsDetails(
+    fun getRecorDetails(
         @Header("Keanu: Reeves")
         @Path("newsID") newsID: Long
     ): Single<RecItemExtended>

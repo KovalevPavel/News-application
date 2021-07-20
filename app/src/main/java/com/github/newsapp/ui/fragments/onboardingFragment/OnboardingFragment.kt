@@ -6,8 +6,10 @@ import com.github.newsapp.ui.presenters.OnboardingPresenter
 import com.github.newsapp.ui.view.OnboardingView
 import com.github.newsapp.util.FragmentViewBinding
 import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
 
+/**
+ * Фрагмент, отвечающий за отображение экрана onboarding
+ */
 class OnboardingFragment :
     FragmentViewBinding<FragmentOnboardingBinding>(FragmentOnboardingBinding::inflate),
     OnboardingView {
@@ -16,14 +18,18 @@ class OnboardingFragment :
     @InjectPresenter
     lateinit var onboardingPresenter: OnboardingPresenter
 
-    @ProvidePresenter
-    fun providePresenter(): OnboardingPresenter {
-        return OnboardingPresenter(requireActivity())
+    override fun onStart() {
+        installViewPager()
+        installDotsIndicator()
+        installButton()
+        super.onStart()
     }
 
-    override fun onStart() {
+    /**
+     * Установка viewPager
+     */
+    private fun installViewPager() {
         binder.onboardingViewPager.adapter = viewPagerAdapter
-        binder.dotsOnboarding.setViewPager2(binder.onboardingViewPager)
         binder.onboardingViewPager.registerOnPageChangeCallback(object :
             ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -32,10 +38,22 @@ class OnboardingFragment :
                 onboardingPresenter.checkCurrentScreen(position == viewPagerAdapter.itemCount - 1)
             }
         })
+    }
+
+    /**
+     * Установка индикатора
+     */
+    private fun installDotsIndicator() {
+        binder.dotsOnboarding.setViewPager2(binder.onboardingViewPager)
+    }
+
+    /**
+     * Установка кнопки перехода
+     */
+    private fun installButton() {
         binder.btnOnboarding.setOnClickListener {
             onboardingPresenter.startUsing()
         }
-        super.onStart()
     }
 
     override fun setPageToViewPager(page: Int) {

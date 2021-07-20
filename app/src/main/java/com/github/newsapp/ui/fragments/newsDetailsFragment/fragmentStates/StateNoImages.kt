@@ -6,6 +6,9 @@ import com.github.newsapp.R
 import com.github.newsapp.databinding.FragmentNewsDetailsBinding
 import com.github.newsapp.util.getColor
 
+/**
+ * Имплементация [DetailsNewsState] для случая, когда с сервера не приходят изображения к записи
+ */
 class StateNoImages(
     override val binder: FragmentNewsDetailsBinding,
     context: Context

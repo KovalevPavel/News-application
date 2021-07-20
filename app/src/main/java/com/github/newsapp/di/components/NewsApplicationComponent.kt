@@ -1,16 +1,13 @@
 package com.github.newsapp.di.components
 
 import com.github.newsapp.app.NewsApplication
-import com.github.newsapp.di.components.subcomponents.FragmentRetryComponent
-import com.github.newsapp.di.components.subcomponents.MainActivityComponent
-import com.github.newsapp.di.components.subcomponents.NewsComponent
-import com.github.newsapp.di.components.subcomponents.NewsDetailsComponent
+import com.github.newsapp.di.components.subcomponents.*
 import com.github.newsapp.di.modules.NavigationModule
 import com.github.newsapp.di.modules.NetworkModule
 import com.github.newsapp.di.modules.SharedPrefsModule
-import com.github.newsapp.ui.main.MainActivity
+import com.github.newsapp.domain.usecases.LaunchNumberUseCase
+import com.github.newsapp.ui.cicerone.NewsRouter
 import com.github.terrakok.cicerone.Cicerone
-import com.github.terrakok.cicerone.Router
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -29,7 +26,7 @@ interface NewsApplicationComponent {
         @BindsInstance
         fun applicationContext (application: NewsApplication): Builder
         @BindsInstance
-        fun cicerone(cicerone: Cicerone<Router>): Builder
+        fun cicerone(cicerone: Cicerone<NewsRouter>): Builder
         fun build(): NewsApplicationComponent
     }
 
@@ -37,6 +34,8 @@ interface NewsApplicationComponent {
     fun newsDetailsComponent(): NewsDetailsComponent.Builder
     fun mainActivityComponent(): MainActivityComponent.Builder
     fun retryComponent(): FragmentRetryComponent.Builder
+    fun onboardingComponent(): OnboardingComponent.Builder
+    fun ratingComponent(): RatingComponent.Builder
 
-    fun inject(activity: MainActivity)
+    fun launchNumberUseCase(): LaunchNumberUseCase
 }

@@ -7,9 +7,9 @@ import com.github.newsapp.di.ComponentObject
 import com.github.newsapp.domain.usecases.TimestampUseCase
 import com.github.newsapp.domain.usecases.network.NetworkUseCase
 import com.github.newsapp.domain.usecases.viewpagerInteraction.ViewPagerInteraction
-import com.github.newsapp.ui.CiceroneScreens
+import com.github.newsapp.ui.cicerone.CiceroneScreens
+import com.github.newsapp.ui.cicerone.NewsRouter
 import com.github.newsapp.ui.view.NewsDetailsView
-import com.github.terrakok.cicerone.Router
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
@@ -22,17 +22,24 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 /**
- * Презентер для экрана детальной информации о новости
+ * Презентер для экрана детальной информации о новости.
+ * @param recId id текущей записи.
+ * @property networkScope scope, предназначенный для запуска задач через сеть
+ * @property appContext контекст приложения
  * @property viewPagerFullScreenInteractor интерактор для связи с полноэкранным просмотром
+ * @property loadingUseCase интерактор для операций с загрузкой данных с сервера
+ * @property timestampUseCase интерактор для операций с датой/временем
  * @property router роутер Cicerone, отвечающий за навигацию внутри приложения
- * @property newsID id текущей новости
- * @property currentRecDetails текущий объект новости
+ *
+ * По этому Id происходит запрос на сервер; полученный объект записи устанавливается в [currentRecDetails]
+ * @property currentRecDetails текущий объект записи
  * @property imageCount число изображений, полученных с сервера
  * @property currentImageIndex индекс текущего изображения
  * @property disposableCounter счетчик изображения (текущее изображение во viewPager)
  */
 @InjectViewState
-class NewsDetailsPresenter : MvpPresenter<NewsDetailsView>(), PresenterWithRetry {
+class NewsDetailsPresenter(private val recId: Long) : MvpPresenter<NewsDetailsView>(),
+    PresenterWithRetry {
 
     private val networkScope = CoroutineScope(Dispatchers.IO)
 
@@ -43,13 +50,13 @@ class NewsDetailsPresenter : MvpPresenter<NewsDetailsView>(), PresenterWithRetry
     lateinit var viewPagerFullScreenInteractor: ViewPagerInteraction
 
     @Inject
-    lateinit var networkUseCase: NetworkUseCase
+    lateinit var loadingUseCase: NetworkUseCase
 
     @Inject
     lateinit var timestampUseCase: TimestampUseCase
 
     @Inject
-    lateinit var router: Router
+    lateinit var router: NewsRouter
 
     private lateinit var currentRecDetails: RecItemExtended
 
@@ -68,20 +75,23 @@ class NewsDetailsPresenter : MvpPresenter<NewsDetailsView>(), PresenterWithRetry
             viewPagerFullScreenInteractor.disposableCounter = value
         }
 
-    private var newsID: Long? = null
 
     init {
         injectDependencies()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        clearDependencies()
+    }
+
+    private fun clearDependencies() {
+        ComponentObject.clearNewsComponent()
+    }
+
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
         loadDetails()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        destroyDependencies()
     }
 
     private fun injectDependencies() {
@@ -91,14 +101,11 @@ class NewsDetailsPresenter : MvpPresenter<NewsDetailsView>(), PresenterWithRetry
         }
     }
 
-    private fun destroyDependencies() {
-        ComponentObject.clearNewsComponent()
-    }
-
     private fun loadDetails() {
+        viewState.toggleDetailsLoading(true)
         networkScope.launch {
-            newsID?.let { newsID ->
-                networkUseCase.getNewsDetails(newsID,
+            recId.let { newsID ->
+                loadingUseCase.getNewsDetails(newsID,
                     { recItem ->
                         currentRecDetails = recItem
                         timestampUseCase.getPublishedAtString(recItem.publishedAt).also {
@@ -106,7 +113,9 @@ class NewsDetailsPresenter : MvpPresenter<NewsDetailsView>(), PresenterWithRetry
                         }
                         viewState.bindDetails(recItem)
                         viewState.setImageToViewPager(currentImageIndex)
+                        viewState.toggleDetailsLoading(false)
                     }, {
+                        viewState.toggleDetailsLoading(false)
                         router.navigateTo(CiceroneScreens.retryScreen(this@NewsDetailsPresenter))
                     })
             }
@@ -159,14 +168,6 @@ class NewsDetailsPresenter : MvpPresenter<NewsDetailsView>(), PresenterWithRetry
         disposableCounter?.dispose()
         currentImageIndex = newImageID
         startCount()
-    }
-
-
-    /**
-     * Получение id новости для загрузки
-     */
-    fun updateNewsID(updatedID: Long) {
-        newsID = updatedID
     }
 
     /**

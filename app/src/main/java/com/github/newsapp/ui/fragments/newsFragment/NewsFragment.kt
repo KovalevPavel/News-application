@@ -28,8 +28,8 @@ import javax.inject.Inject
  * @property newsAdapter адаптер для Recycler view новостной ленты
  * @property firstLaunch флаг, показывающий, это первый запуск приложения или нет
  * @property launchNumber номер запуска приложения
- * @property newsPresenter презентер для экрана со списком новостей
  * @property newsItemsDecorator декоратор для установки в Recycler view
+ * @property newsPresenter презентер для экрана со списком новостей
  */
 class NewsFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPageBinding::inflate),
     NewsPageView, PresenterWithRetry {
@@ -57,10 +57,9 @@ class NewsFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPa
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        if (firstLaunch) {
+        if (savedInstanceState == null)
             newsPresenter.revealFragment(view)
-        }
+        super.onViewCreated(view, savedInstanceState)
         initUI()
     }
 
@@ -73,7 +72,7 @@ class NewsFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPa
     private fun loadNewsList() {
         lifecycleScope.launch {
             togglePageLoading(true)
-            newsPresenter.loadNews()
+            newsPresenter.loadRecords()
             togglePageLoading(false)
         }
     }
@@ -98,21 +97,16 @@ class NewsFragment : FragmentViewBinding<FragmentNewsPageBinding>(FragmentNewsPa
     }
 
     override fun togglePageLoading(toggle: Boolean) {
-//        if (toggle) {
-//            binder.progressBar.visibility = View.VISIBLE
-//            val lastIndex = (newsAdapter?.itemCount?.minus(1)) ?: 0
-//            binder.recyclerNews.layoutManager?.scrollToPosition(lastIndex)
-//        } else binder.progressBar.visibility = View.GONE
-            binder.swipeLayout.isRefreshing = toggle
+        binder.progressBar.visibility =
+            if (toggle) View.VISIBLE else View.GONE
     }
 
     override fun toggleRecordsLoading(toggle: Boolean) {
-            binder.progressBar.visibility =
-                if (toggle) View.VISIBLE else View.GONE
+        binder.swipeLayout.isRefreshing = toggle
     }
 
     override fun toggleRatingDialog(toggle: Boolean) {
-        if (toggle && launchNumber >= 3 && launchNumber % 3 == 0)
+        if (toggle)
             dialog = RatingDialogFragment().also {
                 it.show(childFragmentManager, null)
             }

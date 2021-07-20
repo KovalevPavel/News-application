@@ -1,8 +1,8 @@
 package com.github.newsapp.di.modules
 
+import com.github.newsapp.ui.cicerone.NewsRouter
 import com.github.terrakok.cicerone.Cicerone
 import com.github.terrakok.cicerone.NavigatorHolder
-import com.github.terrakok.cicerone.Router
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -14,13 +14,13 @@ import javax.inject.Singleton
 class NavigationModule {
     @Provides
     @Singleton
-    fun provideRouter(cicerone: Cicerone<Router>): Router {
+    fun provideRouter(cicerone: Cicerone<NewsRouter>): NewsRouter {
         return cicerone.router
     }
 
     @Provides
     @Singleton
-    fun provideNavigatorHolder(cicerone: Cicerone<Router>): NavigatorHolder {
+    fun provideNavigatorHolder(cicerone: Cicerone<NewsRouter>): NavigatorHolder {
         return cicerone.getNavigatorHolder()
     }
 }

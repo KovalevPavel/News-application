@@ -23,7 +23,7 @@ class NetworkRepositoryImpl(
         onSuccess: () -> Unit,
         onFail: (t: Throwable) -> Unit
     ) {
-        networkApi.getNewsList()
+        networkApi.getRecordsList()
             .map {
                 it.newsList
             }
@@ -42,7 +42,7 @@ class NetworkRepositoryImpl(
         onSuccess: (RecItemExtended) -> Unit,
         onFail: (t: Throwable) -> Unit
     ) {
-        networkApi.getNewsDetails(newsID)
+        networkApi.getRecorDetails(newsID)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
@@ -70,9 +70,13 @@ class NetworkRepositoryImpl(
             val resultList = newsList.filterIndexed { index, _ ->
                 index in (start..end)
             }
-//            имитация процесса получения данных с сервера
+            /*
+            Имитация получения данных с сервера.
+            По хорошему, необходимо вынести отдельную функцию в Api
+             */
             if (loadingPage != 1)
                 delay(2000L)
+
             onFinish(resultList)
         }
     }

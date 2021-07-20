@@ -1,10 +1,7 @@
 package com.github.newsapp.di
 
 import com.github.newsapp.app.NewsApplication
-import com.github.newsapp.di.components.subcomponents.FragmentRetryComponent
-import com.github.newsapp.di.components.subcomponents.MainActivityComponent
-import com.github.newsapp.di.components.subcomponents.NewsComponent
-import com.github.newsapp.di.components.subcomponents.NewsDetailsComponent
+import com.github.newsapp.di.components.subcomponents.*
 
 /**
  * Объект, содержащий в себе переменные субкомпонентов, а также методы из создания и уничтожения
@@ -23,9 +20,18 @@ object ComponentObject {
     var retryComponent: FragmentRetryComponent? = null
         private set
 
+    var onboardingComponent: OnboardingComponent? = null
+        private set
+
+    var ratingComponent: RatingComponent? = null
+
     fun addNewsComponent() {
         if (newsComponent != null) return
         newsComponent = NewsApplication.newsApplicationComponent.newsComponent().build()
+    }
+
+    fun clearNewsComponent() {
+        newsComponent = null
     }
 
     fun addNewsDetailsComponent() {
@@ -34,13 +40,10 @@ object ComponentObject {
             NewsApplication.newsApplicationComponent.newsDetailsComponent().build()
     }
 
-    fun clearNewsComponent() {
-        newsComponent = null
-    }
-
     fun clearNewsDetailsComponent() {
         newsDetailsComponent = null
     }
+
 
     fun addMainActivityComponent() {
         if (mainActivityComponent != null) return
@@ -60,5 +63,25 @@ object ComponentObject {
 
     fun clearRetryComponent() {
         retryComponent = null
+    }
+
+    fun addOnboardingComponent() {
+        if (onboardingComponent != null) return
+        onboardingComponent =
+            NewsApplication.newsApplicationComponent.onboardingComponent().build()
+    }
+
+    fun clearOnboardingComponent() {
+        onboardingComponent = null
+    }
+
+    fun addRatingComponent() {
+        if (ratingComponent != null) return
+        ratingComponent =
+            NewsApplication.newsApplicationComponent.ratingComponent().build()
+    }
+
+    fun clearRatingComponent() {
+        ratingComponent = null
     }
 }

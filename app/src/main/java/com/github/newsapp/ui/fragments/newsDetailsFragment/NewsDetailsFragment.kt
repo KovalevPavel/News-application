@@ -35,7 +35,7 @@ class NewsDetailsFragment :
     NewsDetailsView {
 
     companion object {
-        private const val REC_ID = "newsID"
+        private const val REC_ID = "recId"
 
         /**
          * Создание экземпляра фрагмента с переданным значением id записи в аргументах
@@ -55,7 +55,7 @@ class NewsDetailsFragment :
 
     @ProvidePresenter
     fun provideDetailsPresenter(): NewsDetailsPresenter {
-        return NewsDetailsPresenter()
+        return NewsDetailsPresenter(requireArguments().getLong(REC_ID))
     }
 
     private lateinit var fragmentState: DetailsNewsState
@@ -73,7 +73,6 @@ class NewsDetailsFragment :
         viewPagerAdapter = ViewPagerAdapter {
             detailsPresenter.openFullScreenView()
         }
-        translateRecId()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -86,11 +85,9 @@ class NewsDetailsFragment :
         detailsPresenter.updatePreviewImage()
     }
 
-    /**
-     * Трансляция презентеру id полученной записи
-     */
-    private fun translateRecId() {
-        detailsPresenter.updateNewsID(requireArguments().getLong(REC_ID))
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binder.viewPager.unregisterOnPageChangeCallback(onViewPagerItemChange)
     }
 
     /**
@@ -105,18 +102,31 @@ class NewsDetailsFragment :
     }
 
     override fun bindDetails(details: RecItemExtended) {
+        setupRecordText(details)
+        setState(details)
+        setupShareButton(details)
+        setupViewPager(details)
+    }
+
+    private fun setupRecordText(details: RecItemExtended) {
         binder.apply {
             textNewsHeader.text = details.title
             textNewsDescription.text = details.description
             textPublishedAt.text = details.publishedAtString
-            setState(details)
-            setupShareButton(details)
-            fragmentState.prepareFragment()
-            details.images?.let {
-                viewPagerAdapter.updateImageList(it)
-                viewPagerAdapter.notifyDataSetChanged()
-            }
-            dotsIndicator.setViewPager2(binder.viewPager)
+        }
+    }
+
+    /**
+     * Настройка состояния фрагмента
+     * @param details объект с детальной информацией о записи
+     */
+    private fun setState(details: RecItemExtended) {
+        fragmentState = when (details.images?.size) {
+            null -> StateNoImages(binder, requireActivity() as AppCompatActivity)
+            1 -> StateOneImage(binder, requireActivity() as AppCompatActivity)
+            else -> StateManyImages(binder, requireActivity() as AppCompatActivity)
+        }.also {
+            it.prepareFragment()
         }
     }
 
@@ -140,27 +150,35 @@ class NewsDetailsFragment :
     }
 
     /**
-     * Настройка состояния фрагмента
+     * Настройка viewPager
      * @param details объект с детальной информацией о записи
      */
-    private fun setState(details: RecItemExtended) {
-        fragmentState = when (details.images?.size) {
-            null -> StateNoImages(binder, requireActivity() as AppCompatActivity)
-            1 -> StateOneImage(binder, requireActivity() as AppCompatActivity)
-            else -> StateManyImages(binder, requireActivity() as AppCompatActivity)
+    private fun setupViewPager(details: RecItemExtended) {
+        binder.apply {
+            details.images?.let {
+                viewPagerAdapter.updateImageList(it)
+                viewPagerAdapter.notifyDataSetChanged()
+            }
+            dotsIndicator.setViewPager2(binder.viewPager)
         }
-    }
-
-    override fun updateNewsID() {
-        detailsPresenter.updateNewsID(requireArguments().getLong(REC_ID))
     }
 
     override fun setImageToViewPager(imageID: Int) {
         binder.viewPager.setCurrentItem(imageID, false)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binder.viewPager.unregisterOnPageChangeCallback(onViewPagerItemChange)
+    override fun toggleDetailsLoading(toggle: Boolean) {
+        binder.apply {
+            loadingProgressBar.visibility = if (toggle) View.VISIBLE else View.GONE
+            btnShare.visibility = if (toggle) View.GONE else View.VISIBLE
+
+            /*
+             Здесь только скрываем индикатор. Если в будущем он будет необходим, при установке
+             состояния фрагмента он будет выведен
+             */
+            if (toggle) dotsIndicator.visibility = View.GONE
+        }
     }
+
+
 }

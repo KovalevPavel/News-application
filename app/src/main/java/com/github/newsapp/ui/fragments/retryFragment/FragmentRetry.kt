@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.view.View
 import com.github.newsapp.databinding.FragmentErrorLoadingBinding
 import com.github.newsapp.di.ComponentObject
+import com.github.newsapp.ui.cicerone.NewsRouter
 import com.github.newsapp.ui.presenters.PresenterWithRetry
 import com.github.newsapp.ui.presenters.RetryPresenter
 import com.github.newsapp.ui.view.RetryScreenView
 import com.github.newsapp.util.FragmentViewBinding
-import com.github.terrakok.cicerone.Router
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import javax.inject.Inject
@@ -32,7 +32,7 @@ class FragmentRetry :
     }
 
     @Inject
-    lateinit var router: Router
+    lateinit var router: NewsRouter
 
     private var parentViewPresenter: PresenterWithRetry? = null
 

@@ -1,29 +1,55 @@
 package com.github.newsapp.ui.presenters
 
-import androidx.fragment.app.FragmentActivity
-import com.github.newsapp.R
-import com.github.newsapp.ui.fragments.newsFragment.NewsFragment
+import com.github.newsapp.di.ComponentObject
+import com.github.newsapp.ui.cicerone.CiceroneScreens
+import com.github.newsapp.ui.cicerone.NewsRouter
 import com.github.newsapp.ui.view.OnboardingView
 import moxy.InjectViewState
 import moxy.MvpPresenter
+import javax.inject.Inject
 
+/**
+ * Презентер для экрана onboarding
+ * @property router
+ */
 @InjectViewState
-class OnboardingPresenter(private val parentActivity: FragmentActivity) :
+class OnboardingPresenter :
     MvpPresenter<OnboardingView>() {
 
-//    настройка кнопки
+    @Inject
+    lateinit var router: NewsRouter
+
+    init {
+        injectDependencies()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        clearDependencies()
+    }
+
+    private fun injectDependencies() {
+        ComponentObject.addOnboardingComponent()
+        ComponentObject.onboardingComponent?.inject(this)
+    }
+
+    private fun clearDependencies() {
+        ComponentObject.clearOnboardingComponent()
+    }
+
+    /**
+     * Установка текста кнопки
+     * @param lastScreen флаг, показывающий, достиг пользователь последнего экрана или нет
+     */
     fun checkCurrentScreen(lastScreen: Boolean) {
         val btnText = if (lastScreen) "Начать" else "Пропустить"
         viewState.setButtonText(btnText)
     }
 
-//    навигация на главный экран
+    /**
+     * Навигация на главный экран приложения
+     */
     fun startUsing() {
-        parentActivity.supportFragmentManager.apply {
-            beginTransaction()
-                .add(R.id.fragment_view, NewsFragment())
-                .commit()
-            popBackStack()
-        }
+        router.navigateToRecordsScreen(CiceroneScreens.mainFragment())
     }
 }

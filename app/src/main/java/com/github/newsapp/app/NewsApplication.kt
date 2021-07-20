@@ -3,8 +3,12 @@ package com.github.newsapp.app
 import android.app.Application
 import com.github.newsapp.di.components.DaggerNewsApplicationComponent
 import com.github.newsapp.di.components.NewsApplicationComponent
+import com.github.newsapp.ui.cicerone.NewsRouter
 import com.github.terrakok.cicerone.Cicerone
 import com.jakewharton.threetenabp.AndroidThreeTen
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlin.properties.Delegates
 
 class NewsApplication : Application() {
     companion object {
@@ -14,7 +18,7 @@ class NewsApplication : Application() {
         lateinit var newsApplicationComponent: NewsApplicationComponent
             private set
 
-        var currentLaunchNumber = 0
+        var currentLaunchNumber by Delegates.notNull<Int>()
             private set
     }
 
@@ -23,23 +27,23 @@ class NewsApplication : Application() {
         instance = this
         initiateDagger()
         AndroidThreeTen.init(this)
-        setLaunchInfo()
+        runBlocking {
+            launch {
+                setLaunchInfo()
+            }
+        }
     }
 
     private fun initiateDagger() {
         newsApplicationComponent = DaggerNewsApplicationComponent
             .builder()
             .applicationContext(this)
-            .cicerone(Cicerone.create())
+            .cicerone(Cicerone.create(NewsRouter()))
             .build()
     }
 
-
-
-    private fun setLaunchInfo() {
-//        currentLaunchNumber = filesystemUseCase.getLaunchNumber() + 1
-//        filesystemUseCase.increaseLaunchNumber(filesystemUseCase.getLaunchNumber())
+    private suspend fun setLaunchInfo() {
+        currentLaunchNumber = newsApplicationComponent.launchNumberUseCase().getLaunchNumber()
+        newsApplicationComponent.launchNumberUseCase().increaseLaunchNumber()
     }
-
-
 }

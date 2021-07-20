@@ -1,7 +1,7 @@
 package com.github.newsapp.ui.presenters
 
+import com.github.newsapp.ui.cicerone.NewsRouter
 import com.github.newsapp.ui.view.RetryScreenView
-import com.github.terrakok.cicerone.Router
 import moxy.InjectViewState
 import moxy.MvpPresenter
 
@@ -10,7 +10,7 @@ import moxy.MvpPresenter
  * @param router роутер Cicerone, отвечающий за навигацию внутри приложения
  */
 @InjectViewState
-class RetryPresenter(private val router: Router) : MvpPresenter<RetryScreenView>() {
+class RetryPresenter(private val router: NewsRouter) : MvpPresenter<RetryScreenView>() {
     fun retryLoading() {
         viewState.navigateBack()
         router.exit()
